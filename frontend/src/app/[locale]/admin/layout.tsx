@@ -1,0 +1,150 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { useAuthStore } from '@/store/authStore';
+import { LayoutDashboard, Package, FolderTree, ShoppingBag, FileText, Users, Shield, Settings } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const [activeMenu, setActiveMenu] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string>('');
+  const { user, isAuthenticated, accessToken } = useAuthStore();
+  const params = useParams();
+  const locale = params.locale as string;
+  const router = useRouter();
+  const t = useTranslations('admin');
+
+  const menuItems = [
+    { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard, href: '' },
+    { id: 'products', label: t('products'), icon: Package, href: '/products' },
+    { id: 'categories', label: t('categories'), icon: FolderTree, href: '/categories' },
+    { id: 'orders', label: t('orders'), icon: ShoppingBag, href: '/orders' },
+    { id: 'articles', label: t('articles'), icon: FileText, href: '/articles' },
+    { id: 'users', label: t('users'), icon: Users, href: '/users' },
+    { id: 'roles', label: t('roles'), icon: Shield, href: '/roles' },
+  ];
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
+    setDebugInfo(`mounted: ${mounted}, isAuth: ${isAuthenticated}, user: ${JSON.stringify(user)}, token: ${accessToken ? 'exists' : 'null'}`);
+    
+    if (!isAuthenticated) {
+      router.push(`/${locale}/login`);
+      return;
+    }
+
+    // Check roles case-insensitively - backend uses uppercase (ADMIN, MANAGER)
+    const adminRoles = ['SUPER_ADMIN', 'ADMIN', 'MANAGER'];
+    const userRoles = (user?.roles || []).map((r: string) => r.toUpperCase());
+    const hasAdminRole = adminRoles.some(r => userRoles.includes(r));
+    
+    if (!hasAdminRole) {
+      router.push(`/${locale}`);
+    }
+  }, [isAuthenticated, user, locale, mounted, router]);
+
+  if (!mounted || !isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-500 mb-2">{t('loading')}</p>
+          <p className="text-xs text-gray-400 font-mono bg-gray-100 p-2 rounded">{debugInfo}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Backend uses uppercase roles, frontend was checking for title case
+  const adminRoles = ['SUPER_ADMIN', 'ADMIN', 'MANAGER'];
+  const userRoles = (user?.roles || []).map((r: string) => r.toUpperCase());
+  const hasAdminRole = adminRoles.some(r => userRoles.includes(r));
+  
+  if (!hasAdminRole) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8">
+          <p className="text-gray-600 mb-2">{t('noPermission')}</p>
+          <p className="text-xs text-gray-400 font-mono bg-gray-100 p-2 rounded mb-4">Roles: {JSON.stringify(userRoles)}</p>
+          <a href={`/${locale}`} className="text-primary-600 hover:underline mt-2 inline-block">{locale === 'vi' ? 'Quay về trang chủ' : 'Back to Home'}</a>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* Top Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-40">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <Link href={`/${locale}`} className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">GL</span>
+              </div>
+              <span className="font-bold text-lg">{t('admin')}</span>
+            </Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/${locale}`}
+              target="_blank"
+              className="text-sm text-gray-500 hover:text-primary-600"
+            >
+              {locale === 'vi' ? 'Xem website' : 'View Website'}
+            </Link>
+            <div className="text-sm">
+              <span className="font-medium">{user.name}</span>
+              <span className="text-gray-500 ml-2">{user.roles?.join(', ')}</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className={`bg-white shadow-sm transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'}`}>
+          <nav className="p-4 space-y-1">
+            {menuItems.map((item) => (
+              <Link
+                key={item.id}
+                href={`/${locale}/admin${item.href}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  activeMenu === item.id
+                    ? 'bg-primary-50 text-primary-600 font-medium'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+                onClick={() => setActiveMenu(item.id)}
+              >
+                <item.icon className="w-5 h-5" />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}

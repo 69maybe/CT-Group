@@ -1,0 +1,56 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install PostgreSQL, Java 17, Maven, Node.js
+RUN apt-get update && apt-get install -y \
+    postgresql-14 \
+    openjdk-17-jdk \
+    maven \
+    curl \
+    gnupg \
+    ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Setup PostgreSQL
+RUN mkdir -p /var/lib/postgresql/14/main
+
+WORKDIR /app
+
+# ============ BACKEND ============
+WORKDIR /app/backend
+COPY backend/pom.xml ./
+RUN mvn dependency:go-offline -B || true
+COPY backend/src ./src
+RUN mvn clean package -DskipTests
+
+# ============ FRONTEND ============
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ ./
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+# Copy custom server and start script
+COPY frontend/server.js ./
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# ============ INIT DATABASE ============
+RUN service postgresql start && \
+    su - postgres -c "psql -c \"CREATE DATABASE greenlife;\"" 2>/dev/null || true && \
+    su - postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres123';\"" && \
+    service postgresql stop
+
+# ============ START ============
+WORKDIR /app
+
+EXPOSE 3000 5000 5432
+
+RUN tr -d '\r' < /app/start.sh > /app/start.sh.tmp && mv /app/start.sh.tmp /app/start.sh && chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
