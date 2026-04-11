@@ -73,6 +73,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-project-name: greenlife-frontend
           vercel-org-id: team
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: frontend
 
   deploy-backend:
