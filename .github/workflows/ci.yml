@@ -75,13 +75,18 @@ jobs:
           vercel-org-id: team
           working-directory: frontend
 
-  deploy-backend:
-    name: Deploy - Backend to Render
+name: Deploy Backend to Fly.io
     runs-on: ubuntu-latest
     needs: [backend-test]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - name: Trigger Render Deploy
-        run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+      - uses: actions/checkout@v4
+
+      - name: Set up Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        run: fly deploy -a greenlife-backend
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
