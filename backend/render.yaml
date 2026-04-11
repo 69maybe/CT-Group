@@ -2,17 +2,31 @@ services:
   - type: web
     name: greenlife-backend
     env: java
+    rootDirectory: backend
     buildCommand: ./mvnw clean package -DskipTests
     startCommand: java -jar target/greenlife-backend-1.0.0.jar
     plan: free
     region: singapore
     healthCheckPath: /api/health
+    disk:
+      name: uploads
+      mountPath: /app/uploads
+      sizeGB: 1
     envVars:
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: greenlife-db
+          property: connectionString
       - key: JWT_SECRET
-        sync: false
+        generateValue: true
       - key: JWT_EXPIRATION
         value: "86400000"
       - key: CORS_ORIGINS
         value: "*"
+
+databases:
+  - name: greenlife-db
+    plan: free
+    region: singapore
+    databaseName: greenlife
+    ipAllowList: []
