@@ -6,10 +6,14 @@ server:
 # Database Configuration
 spring:
   datasource:
-    url: ${DATABASE_URL}?sslmode=require
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}?sslmode=require
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-lifetime: 1800000
+      minimum-idle: 2
 
   jpa:
     hibernate:
