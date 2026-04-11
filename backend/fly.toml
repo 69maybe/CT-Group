@@ -20,11 +20,6 @@ primary_region = "sin"
     handlers = ["tls", "http"]
     port = 443
 
-  [[services.http_checks]]
-    path = "/"
-    interval = "15s"
-    timeout = "10s"
-    grace_period = "60s"  
 [[vm]]
   memory = "1gb"
   cpu_kind = "shared"
