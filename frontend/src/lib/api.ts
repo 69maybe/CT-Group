@@ -143,6 +143,10 @@ class ApiClient {
       });
     }
     const response = await this.fetch<{ items: any[]; total: number }>(`/articles?${searchParams.toString()}`);
+    // Handle both response formats: { items, total } or { data: { items, total } }
+    if (response.items && response.total !== undefined) {
+      return response;
+    }
     return response.data || { items: [], total: 0 };
   }
 

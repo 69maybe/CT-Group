@@ -8,6 +8,7 @@ import { useParams } from 'next/navigation';
 export default function Footer() {
   const t = useTranslations('footer');
   const tNav = useTranslations('nav');
+  const tProducts = useTranslations('products');
   const params = useParams();
   const locale = params.locale as string;
 
@@ -49,7 +50,7 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <h3 className="text-white font-semibold mb-4">{tNav('categories')}</h3>
+            <h3 className="text-white font-semibold mb-4">{tProducts('categories')}</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href={`/${locale}/products?category=salad`} className="hover:text-primary-400">Salad</Link></li>
               <li><Link href={`/${locale}/products?category=nuoc-ep`} className="hover:text-primary-400">{locale === 'vi' ? 'Nước ép' : 'Juice'}</Link></li>
