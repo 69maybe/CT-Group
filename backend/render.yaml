@@ -1,16 +1,11 @@
 services:
   - type: web
     name: greenlife-backend
-    env: java
-    buildCommand: cd backend && ./mvnw clean package -DskipTests
-    startCommand: cd backend && java -jar target/greenlife-backend-1.0.0.jar
-    plan: free
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    plan: starter
     region: singapore
     healthCheckPath: /api/health
-    disk:
-      name: uploads
-      mountPath: /app/uploads
-      sizeGB: 1
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -25,7 +20,7 @@ services:
 
 databases:
   - name: greenlife-db
-    plan: free
+    plan: starter
     region: singapore
     databaseName: greenlife
     ipAllowList: []
