@@ -21,8 +21,8 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-        
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL ??
+          "https://backend-production-446d.up.railway.app";
         const [productsRes, articlesRes] = await Promise.all([
           fetch(`${baseUrl}/api/products/featured`),
           fetch(`${baseUrl}/api/articles/featured?locale=${locale}`)
@@ -83,8 +83,8 @@ export default function HomePage() {
                 <div className="space-y-4">
                   <div className="bg-white rounded-2xl shadow-lg p-4 transform hover:scale-105 transition-transform overflow-hidden">
                     <div className="bg-primary-100 rounded-xl h-32 mb-3 flex items-center justify-center">
-                      <img 
-                        src="/images/salad.jpg" 
+                      <img
+                        src="/images/salad.jpg"
                         alt="Fresh Salad"
                         className="w-full h-full object-cover rounded-xl"
                       />
@@ -93,8 +93,8 @@ export default function HomePage() {
                   </div>
                   <div className="bg-white rounded-2xl shadow-lg p-4 transform hover:scale-105 transition-transform overflow-hidden">
                     <div className="bg-orange-100 rounded-xl h-40 mb-3 flex items-center justify-center">
-                      <img 
-                        src="/images/juice.jpg" 
+                      <img
+                        src="/images/juice.jpg"
                         alt="Fresh Juice"
                         className="w-full h-full object-cover rounded-xl"
                       />
@@ -105,8 +105,8 @@ export default function HomePage() {
                 <div className="space-y-4 pt-8">
                   <div className="bg-white rounded-2xl shadow-lg p-4 transform hover:scale-105 transition-transform overflow-hidden">
                     <div className="bg-green-100 rounded-xl h-40 mb-3 flex items-center justify-center">
-                      <img 
-                        src="/images/eatclean.jpg" 
+                      <img
+                        src="/images/eatclean.jpg"
                         alt="Eat Clean"
                         className="w-full h-full object-cover rounded-xl"
                       />
@@ -115,8 +115,8 @@ export default function HomePage() {
                   </div>
                   <div className="bg-white rounded-2xl shadow-lg p-4 transform hover:scale-105 transition-transform overflow-hidden">
                     <div className="bg-purple-100 rounded-xl h-32 mb-3 flex items-center justify-center">
-                      <img 
-                        src="/images/smoothie.jpg" 
+                      <img
+                        src="/images/smoothie.jpg"
                         alt="Smoothie"
                         className="w-full h-full object-cover rounded-xl"
                       />
