@@ -80,8 +80,14 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
 
         if (request.getName() != null && !request.getName().equals(category.getName())) {
+            String newSlug = generateSlug(request.getName());
+
+            if (!newSlug.equals(category.getSlug()) && categoryRepository.existsBySlug(newSlug)) {
+                throw new ConflictException("Category slug already exists");
+            }
+
             category.setName(request.getName());
-            category.setSlug(generateSlug(request.getName()));
+            category.setSlug(newSlug);
         }
 
         if (request.getDescription() != null) {
@@ -91,8 +97,13 @@ public class CategoryService {
             category.setImage(request.getImage());
         }
         if (request.getParentId() != null) {
+            if (request.getParentId().equals(category.getId())) {
+                throw new RuntimeException("Category cannot be its own parent");
+            }
+
             Category parent = categoryRepository.findById(request.getParentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Parent category not found"));
+
             category.setParent(parent);
         }
         if (request.getIsActive() != null) {
@@ -110,6 +121,9 @@ public class CategoryService {
     public void deleteCategory(String id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
+        if (!category.getProducts().isEmpty()) {
+            throw new RuntimeException("Cannot delete category with products");
+        }
         categoryRepository.delete(category);
     }
 
