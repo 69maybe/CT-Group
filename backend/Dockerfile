@@ -20,4 +20,4 @@ COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 5000
 
 # 👇 QUAN TRỌNG: không dùng sh -c
-ENTRYPOINT ["java","-Xmx512m","-Xms256m","-jar","app.jar","--server.port=5000","--server.address=0.0.0.0"]
+ENTRYPOINT ["java","-Xmx256m","-jar","app.jar"]
