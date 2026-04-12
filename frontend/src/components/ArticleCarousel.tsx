@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-
+import { useLocale } from 'next-intl';
 interface Article {
   id: string;
   title: string;
@@ -19,6 +19,7 @@ interface ArticleCarouselProps {
 }
 
 export default function ArticleCarousel({ articles }: ArticleCarouselProps) {
+  const locale = useLocale();
   const [currentIndex, setCurrentIndex] = useState(0);
   const t = useTranslations('home');
 
@@ -49,7 +50,7 @@ export default function ArticleCarousel({ articles }: ArticleCarouselProps) {
   return (
     <section className="relative overflow-hidden bg-gradient-to-r from-primary-600 via-primary-500 to-secondary-500">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
-      
+
       <div className="relative container mx-auto px-4 py-16 md:py-24">
         <div className="text-center mb-8">
           <span className="inline-block px-4 py-1 bg-white/20 text-neutral-900 rounded-full text-sm font-medium backdrop-blur-sm">
@@ -59,7 +60,7 @@ export default function ArticleCarousel({ articles }: ArticleCarouselProps) {
 
         <div className="relative max-w-6xl mx-auto">
           <div className="overflow-hidden rounded-2xl">
-            <div 
+            <div
               className="flex transition-transform duration-500 ease-out"
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
@@ -89,7 +90,7 @@ export default function ArticleCarousel({ articles }: ArticleCarouselProps) {
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-4 text-black">
                       <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight line-clamp-3">
                         {article.title}
@@ -100,7 +101,7 @@ export default function ArticleCarousel({ articles }: ArticleCarouselProps) {
                         </p>
                       )}
                       <Link
-                        href={`/news/${article.slug}`}
+                        href={`/${locale}/news/${article.slug}`}
                         className="inline-flex items-center gap-2 px-0 py-3 bg-white text-primary rounded-xl font-semibold hover:bg-primary-50 transition-all hover:scale-105 mt-4"
                       >
                         {t('carousel.readMore')}
@@ -126,7 +127,7 @@ export default function ArticleCarousel({ articles }: ArticleCarouselProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              
+
               <button
                 onClick={goToNext}
                 className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-0 w-12 h-12 bg-white/90 hover:bg-white text-primary-600 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 z-10"
@@ -142,11 +143,10 @@ export default function ArticleCarousel({ articles }: ArticleCarouselProps) {
                   <button
                     key={index}
                     onClick={() => goToSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      index === currentIndex
-                        ? 'bg-white w-8'
-                        : 'bg-white/50 hover:bg-white/70'
-                    }`}
+                    className={`w-3 h-3 rounded-full transition-all ${index === currentIndex
+                      ? 'bg-white w-8'
+                      : 'bg-white/50 hover:bg-white/70'
+                      }`}
                     aria-label={`Go to slide ${index + 1}`}
                   />
                 ))}
