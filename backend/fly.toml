@@ -1,26 +1,34 @@
-app = "greenlife-backend"
-primary_region = "sin"
+# fly.toml app configuration file generated for greenlife-backend on 2026-04-11T22:19:46+07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'greenlife-backend'
+primary_region = 'sin'
 
 [build]
-  dockerfile = "Dockerfile"
-  context = "."
+  dockerfile = 'Dockerfile'
 
 [env]
-  PORT = "5000"
+  PORT = '5000'
 
 [[services]]
+  protocol = 'tcp'
   internal_port = 5000
-  protocol = "tcp"
 
   [[services.ports]]
-    handlers = ["http"]
     port = 80
+    handlers = ['http']
 
   [[services.ports]]
-    handlers = ["tls", "http"]
     port = 443
+    handlers = ['tls', 'http']
 
 [[vm]]
-  memory = "1gb"
-  cpu_kind = "shared"
+  memory = '1gb'
+  cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 1024
+
+[deploy]
+  strategy = "immediate"
