@@ -78,6 +78,7 @@ export default function ArticleCarousel({ articles }: ArticleCarouselProps) {
                           fill
                           className="object-cover"
                           priority={index === 0}
+                          unoptimized
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-primary-300 to-secondary-300 flex items-center justify-center">
