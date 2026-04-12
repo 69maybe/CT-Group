@@ -21,4 +21,4 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 cors:
-  allowed-origins: ${CORS_ORIGINS:https://greenlife-food-production.up.railway.app}
+  allowed-origins: ${CORS_ORIGINS:https://ct-group-production.up.railway.app}

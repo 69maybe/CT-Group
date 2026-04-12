@@ -11,4 +11,7 @@ WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
 
+# Railway / Docker: mặc định prod — tránh fallback application.yml → profile dev → 127.0.0.1:5433
+ENV SPRING_PROFILES_ACTIVE=prod
+
 ENTRYPOINT ["java","-Xmx256m","-jar","app.jar"]
