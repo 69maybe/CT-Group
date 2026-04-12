@@ -43,8 +43,7 @@ jwt:
 
 # CORS Configuration
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:3000 || https://greenlife-food-production.up.railway.app}
-
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3000,https://greenlife-food-production.up.railway.app}
 # Logging
 logging:
   level:
