@@ -3,17 +3,29 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 function backendOrigin(): string {
-  return (
+  const raw =
     process.env.BACKEND_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
-    'http://127.0.0.1:5000'
-  ).replace(/\/$/, '');
+    process.env.INTERNAL_API_URL ||
+    '';
+  const trimmed = raw.trim().replace(/\/$/, '');
+  return trimmed || 'http://127.0.0.1:5000';
+}
+
+function usingDefaultLocalBackend(origin: string): boolean {
+  return (
+    origin === 'http://127.0.0.1:5000' ||
+    origin === 'http://localhost:5000' ||
+    origin.startsWith('http://127.0.0.1:') ||
+    origin.startsWith('http://localhost:')
+  );
 }
 
 async function proxy(req: NextRequest, pathSegments: string[]) {
+  const origin = backendOrigin();
   const path = pathSegments.length ? pathSegments.join('/') : '';
   const url = new URL(req.url);
-  const target = `${backendOrigin()}/api/${path}${url.search}`;
+  const target = `${origin}/api/${path}${url.search}`;
 
   const headers = new Headers();
   const ct = req.headers.get('content-type');
@@ -46,11 +58,14 @@ async function proxy(req: NextRequest, pathSegments: string[]) {
     });
   } catch (err) {
     console.error('[api proxy]', target, err);
+    const railwayHint = usingDefaultLocalBackend(origin)
+      ? ' Railway / Docker: trên service Frontend đặt BACKEND_URL và NEXT_PUBLIC_API_URL = URL public của Spring Boot (https://…, không / cuối).'
+      : ' Kiểm tra backend đã chạy, HTTPS, firewall; BACKEND_URL / NEXT_PUBLIC_API_URL đúng chưa.';
     return NextResponse.json(
       {
         success: false,
-        message:
-          'Backend unreachable. Start the API (e.g. mvn spring-boot:run -Pdev on port 5000). Check BACKEND_URL / NEXT_PUBLIC_API_URL.',
+        message: `Không kết nối được API (${origin}).${railwayHint} Local: chạy backend cổng 5000 (vd. mvn spring-boot:run -Pdev).`,
+        configuredBackend: origin,
         data: null,
       },
       { status: 502 }

@@ -1,6 +1,6 @@
 /**
  * Trình duyệt: gọi `/api` (cùng origin với Next) — next.config.js rewrite sang Spring Boot.
- * Server (SSR): gọi trực tiếp backend qua INTERNAL_API_URL hoặc NEXT_PUBLIC_API_URL.
+ * Server (SSR): gọi trực tiếp backend qua INTERNAL_API_URL, BACKEND_URL hoặc NEXT_PUBLIC_API_URL.
  */
 function resolveApiBaseUrl(): string {
   if (typeof window !== 'undefined') {
@@ -8,6 +8,7 @@ function resolveApiBaseUrl(): string {
   }
   const raw = (
     (typeof process !== 'undefined' && process.env.INTERNAL_API_URL) ||
+    (typeof process !== 'undefined' && process.env.BACKEND_URL) ||
     (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) ||
     'http://127.0.0.1:5000'
   ).toString();
