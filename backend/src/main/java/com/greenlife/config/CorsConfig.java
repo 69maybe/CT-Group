@@ -12,7 +12,9 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://greenlife-food-production.up.railway.app")
+                        .allowedOrigins(
+                                "https://greenlife-food-production.up.railway.app"
+                        )
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true);
