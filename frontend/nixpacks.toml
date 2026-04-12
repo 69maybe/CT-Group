@@ -1,0 +1,5 @@
+# Service Railway: Root Directory = frontend (không phải gốc monorepo).
+# Tránh lệnh kiểu npm --workspace=greenlife-frontend (chỉ hợp lệ khi chạy từ repo có workspaces).
+
+[start]
+cmd = "npm run start"

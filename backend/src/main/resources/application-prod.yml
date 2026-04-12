@@ -6,8 +6,9 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}?sslmode=require
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    # Railway thường chỉ có PGUSER / PGPASSWORD; doc cũ dùng DB_USER / DB_PASSWORD
+    username: ${DB_USER:${PGUSER}}
+    password: ${DB_PASSWORD:${PGPASSWORD}}
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 30000
