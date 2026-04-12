@@ -61,7 +61,7 @@ export default function AdminArticles() {
       setLoading(false);
       return;
     }
-    
+
     try {
       const response = await api.getAdminArticles(accessToken, { limit: 100, includeUnpublished: true });
       const data = response?.items || response || [];
@@ -84,7 +84,7 @@ export default function AdminArticles() {
 
   const handleDelete = async (id: string) => {
     if (!confirm(t('confirmDelete'))) return;
-    
+
     try {
       await api.deleteArticle(accessToken!, id);
       toast.success(t('deleteSuccess'));
@@ -96,7 +96,7 @@ export default function AdminArticles() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       if (editingArticle) {
         await api.updateArticle(accessToken!, editingArticle.id, formData);
@@ -146,7 +146,7 @@ export default function AdminArticles() {
     });
   };
 
-  const filteredArticles = articles.filter(article => 
+  const filteredArticles = articles.filter(article =>
     article.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     article.titleEn?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -161,7 +161,7 @@ export default function AdminArticles() {
         <h1 className="text-2xl font-bold text-gray-900">{t('manageArticles')}</h1>
         <button
           onClick={() => { resetForm(); setEditingArticle(null); setShowForm(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600"
         >
           <Plus className="w-5 h-5" />
           {t('addArticle')}
@@ -391,7 +391,7 @@ export default function AdminArticles() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-primary-500 text-white rounded-lg font-medium hover:bg-primary-600"
+                  className="flex-1 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-600"
                 >
                   {tCommon('save')}
                 </button>
