@@ -41,6 +41,10 @@ coverage/
 *.pem
 .vercel
 
+# Bản lưu trang web cục bộ (không đưa lên GitHub)
+CT GROUP VIETNAM.html
+CT GROUP VIETNAM_files/
+
 # Git
 # (don't ignore .github - we need it for workflows)
 !.github/

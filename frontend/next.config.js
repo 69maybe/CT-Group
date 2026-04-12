@@ -3,6 +3,7 @@ const createNextIntlPlugin = require('next-intl/plugin');
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+/** Backend gốc cho rewrite: trình duyệt gọi /api/* → Next proxy → backend (tránh CORS & lỗi fetch tới cổng khác). */
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -24,7 +25,16 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'greenlife-food-production.up.railway.app',
       },
+      {
+        protocol: 'https',
+        hostname: 'ctgroupvietnam.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.ctgroupvietnam.com',
+      },
     ],
+    unoptimized: true,
   },
 };
 

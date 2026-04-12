@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { Phone, Mail, MapPin } from 'lucide-react';
+import { ctgroupOfficeOsmEmbedSrc, CTGROUP_GOOGLE_MAPS_URL } from '@/lib/ctgroupOfficeMap';
 
 export default function AboutPage() {
   const t = useTranslations('about');
-  const tHome = useTranslations('home');
   const params = useParams();
   const locale = params.locale as string;
 
@@ -107,6 +107,40 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Map — trụ sở CT GROUP (cùng địa chỉ trang Liên hệ) */}
+      <section className="py-16 bg-white border-t border-gray-100">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-900 font-heading text-center mb-2">
+            {t('mapTitle')}
+          </h2>
+          <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">{t('mapHint')}</p>
+          <div className="max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-lg border border-gray-200 bg-gray-100">
+            <iframe
+              title={t('mapTitle')}
+              src={ctgroupOfficeOsmEmbedSrc()}
+              className="w-full h-[min(420px,70vh)] border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          </div>
+          <p className="text-center mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+            <a
+              href={CTGROUP_GOOGLE_MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-600 font-medium hover:underline"
+            >
+              {locale === 'vi' ? 'Mở trong Google Maps' : 'Open in Google Maps'}
+            </a>
+            <span className="text-gray-300 hidden sm:inline">|</span>
+            <Link href={`/${locale}/contact`} className="text-primary-600 font-medium hover:underline">
+              {locale === 'vi' ? 'Thông tin liên hệ đầy đủ' : 'Full contact details'}
+            </Link>
+          </p>
+        </div>
+      </section>
+
       {/* Contact */}
       <section className="py-16">
         <div className="container mx-auto px-4">
@@ -120,15 +154,19 @@ export default function AboutPage() {
             <div className="flex flex-wrap justify-center gap-6 mb-8">
               <div className="flex items-center gap-2">
                 <Phone className="w-5 h-5" />
-                <span>0901 234 567</span>
+                <span>(+84) 911 807 668</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
-                <span>contact@greenlifefood.vn</span>
+                <span>info@ctgroupvietnam.com</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
-                <span>{locale === 'vi' ? '123 Đường ABC, Quận 1, TP.HCM' : '123 ABC Street, District 1, HCMC'}</span>
+                <span>
+                  {locale === 'vi'
+                    ? 'Tòa nhà Léman, 20 Trương Định, Quận 3, TP. Hồ Chí Minh'
+                    : 'Léman Building, 20 Truong Dinh St., District 3, Ho Chi Minh City'}
+                </span>
               </div>
             </div>
             <Link

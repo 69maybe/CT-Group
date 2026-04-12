@@ -1,0 +1,26 @@
+# Profile dev — Postgres Docker: docker-compose.dev.yml maps host 5433 -> container 5432
+server:
+  port: ${PORT:5000}
+  address: 0.0.0.0
+
+# JDBC dev (DevDataSourceConfiguration đọc prefix này; không dùng spring.datasource.* để tránh xung đột env)
+ctgroup:
+  dev:
+    jdbc-url: jdbc:postgresql://127.0.0.1:5433/ctgroup?sslmode=disable
+    username: postgres
+    password: postgres
+
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+cors:
+  allowed-origins: http://localhost:3000,http://127.0.0.1:3000
+
+app:
+  seed:
+    admin-email: ${ADMIN_EMAIL:admin@ctgroup.vn}
+    admin-password: ${ADMIN_PASSWORD:Admin@123}

@@ -106,7 +106,7 @@ greenlife-food/
 
 | Role | Email | Password |
 |------|-------|----------|
-| Super Admin | admin@greenlifefood.vn | Admin@123 |
+| Super Admin | admin@ctgroup.vn | Admin@123 |
 | Manager | manager@greenlifefood.vn | Manager@123 |
 | Staff | staff@greenlifefood.vn | Staff@123 |
 | Customer | customer@example.com | Customer@123 |

@@ -338,9 +338,8 @@ export default function AdminArticles() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Hình ảnh (URL)' : 'Image (URL)'}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Hình ảnh' : 'Image (URL)'}</label>
                   <input
-                    type="url"
                     value={formData.image}
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"

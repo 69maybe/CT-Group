@@ -1,50 +1,37 @@
-# Server Configuration
-server:
-  port: ${PORT:5000}
-  address: 0.0.0.0
+# CT GROUP API — cấu hình chung
+# Local: mặc định profile dev (Postgres Docker: docker-compose.dev.yml)
+# Production: đặt SPRING_PROFILES_ACTIVE=prod và biến PGHOST, PGPORT, PGDATABASE, DB_USER, DB_PASSWORD, CORS_ORIGINS, JWT_SECRET
 
-# Database Configuration
 spring:
-  datasource:
-    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}?sslmode=require
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
-    # Fallback credentials if DATABASE_URL is not available
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 30000
-      maximum-lifetime: 1800000
-      minimum-idle: 2
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    open-in-view: false
+  application:
+    name: ctgroup-api
 
   jackson:
     serialization:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
 
-  application:
-    name: greenlife-food
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
 
-# JWT Configuration
+# JWT (prod: đặt JWT_SECRET)
 jwt:
   secret: ${JWT_SECRET:super-secret-jwt-key-change-in-production-must-be-at-least-256-bits}
-  access-token-expiration: 900000
-  refresh-token-expiration: 604800000
+  access-token-expiration: ${JWT_ACCESS_EXPIRATION:900000}
+  refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
-# CORS Configuration
+# CORS — profile dev/prod ghi đè chi tiết
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:3000,https://greenlife-food-production.up.railway.app}
-# Logging
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://127.0.0.1:3000}
+
 logging:
   level:
     com.greenlife: DEBUG

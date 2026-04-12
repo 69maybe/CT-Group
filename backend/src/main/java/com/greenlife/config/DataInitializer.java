@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,7 @@ public class DataInitializer implements CommandLineRunner {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AppSeedProperties appSeedProperties;
 
     @Override
     @Transactional
@@ -60,6 +62,7 @@ public class DataInitializer implements CommandLineRunner {
         if (articleRepository.count() == 0) {
             initializeArticles();
         }
+        migrateLegacyGreenLifeCategoriesToCtGroup();
         if (productRepository.count() == 0) {
             initializeProducts();
         }
@@ -202,27 +205,30 @@ public class DataInitializer implements CommandLineRunner {
         Role adminRole = roleRepository.findByName("ADMIN").orElse(null);
         Role customerRole = roleRepository.findByName("CUSTOMER").orElse(null);
 
-        // Admin user
-        var adminOpt = userRepository.findByEmail("admin@greenlifefood.vn");
+        String adminEmail = appSeedProperties.getAdminEmail();
+        String adminPassword = appSeedProperties.getAdminPassword();
+
+        // Admin user (email + password lấy từ app.seed — xem application-dev.yml hoặc ADMIN_EMAIL / ADMIN_PASSWORD)
+        var adminOpt = userRepository.findByEmail(adminEmail);
         if (adminOpt.isPresent()) {
             User admin = adminOpt.get();
-            admin.setPassword(passwordEncoder.encode("Admin@123"));
+            admin.setPassword(passwordEncoder.encode(adminPassword));
             if (adminRole != null && admin.getUserRoles().isEmpty()) {
                 admin.getUserRoles().add(UserRole.builder().user(admin).role(adminRole).build());
             }
             userRepository.save(admin);
-            log.info("Admin user updated: admin@greenlifefood.vn / Admin@123");
+            log.info("Admin user updated: {}", adminEmail);
         } else if (adminRole != null) {
             User admin = User.builder()
-                    .email("admin@greenlifefood.vn")
-                    .password(passwordEncoder.encode("Admin@123"))
+                    .email(adminEmail)
+                    .password(passwordEncoder.encode(adminPassword))
                     .name("Admin")
                     .phone("0901 234 567")
                     .isActive(true)
                     .build();
             admin.getUserRoles().add(UserRole.builder().user(admin).role(adminRole).build());
             userRepository.save(admin);
-            log.info("Admin user created: admin@greenlifefood.vn / Admin@123");
+            log.info("Admin user created: {}", adminEmail);
         }
         
         // Customer user
@@ -348,256 +354,192 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Sample articles created with English translations");
     }
 
-    private void initializeProducts() {
-        // Create categories first
-        List<Category> categories = Arrays.asList(
-            Category.builder().name("Rau Xanh").slug("rau-xanh").description("Các loại rau xanh tươi sạch").image("https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400").isActive(true).build(),
-            Category.builder().name("Trái Cây").slug("trai-cay").description("Trái cây tươi nhập khẩu và nội địa").image("https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400").isActive(true).build(),
-            Category.builder().name("Thịt Sạch").slug("thit-sach").description("Thịt tươi từ trang trại hữu cơ").image("https://images.unsplash.com/photo-1607623814075-51a5153e23e9?w=400").isActive(true).build(),
-            Category.builder().name("Hải Sản").slug("hai-san").description("Hải sản tươi sống").image("https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400").isActive(true).build(),
-            Category.builder().name("Thực Phẩm Chế Biến").slug("thuc-pham-che-bien").description("Các sản phẩm chế biến sẵn").image("https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400").isActive(true).build()
+    /**
+     * Seed demo GreenLife (rau, trái cây…) — đổi sang nhóm phù hợp CT GROUP (giữ nguyên id để không gãy FK sản phẩm).
+     */
+    private void migrateLegacyGreenLifeCategoriesToCtGroup() {
+        record Mig(String oldSlug, String newSlug, String name, String description, String image) {}
+        List<Mig> migs = Arrays.asList(
+                new Mig("rau-xanh", "do-thi-ha-tang",
+                        "Đô thị thông minh & Hạ tầng",
+                        "Giải pháp đô thị thông minh, hạ tầng giao thông và logistics xanh.",
+                        "/images/ctgroup/KV_Nganh-1.png"),
+                new Mig("trai-cay", "cong-nghe-cao",
+                        "Công nghệ cao & Sản xuất",
+                        "Bán dẫn, UAV, AI, công nghệ không gian và tự động hóa.",
+                        "/images/ctgroup/KV_Nganh-11.png"),
+                new Mig("thit-sach", "y-te-doi-song",
+                        "Y tế & Đời sống",
+                        "Thực phẩm sạch, y tế, công nghệ sinh học và chăm sóc sức khỏe.",
+                        "/images/ctgroup/KV_Nganh-3.png"),
+                new Mig("hai-san", "nang-luong-moi-truong",
+                        "Năng lượng & Môi trường",
+                        "Tín chỉ carbon, tài sản số xanh và phát triển bền vững.",
+                        "/images/ctgroup/KV_Nganh-10.png"),
+                new Mig("thuc-pham-che-bien", "dich-vu-doi-moi",
+                        "Dịch vụ & Đổi mới sáng tạo",
+                        "CT Innovation Hub, tư vấn chuyển đổi số và đồng hành doanh nghiệp.",
+                        "/images/ctgroup/KV_Nganh-9.png")
         );
-        categoryRepository.saveAll(categories);
-        log.info("Sample categories created");
+        for (int i = 0; i < migs.size(); i++) {
+            final Mig m = migs.get(i);
+            final int sortOrder = i + 1;
+            categoryRepository.findBySlug(m.oldSlug()).ifPresent(cat -> {
+                boolean newSlugAvailable = categoryRepository.findBySlug(m.newSlug())
+                        .map(o -> o.getId().equals(cat.getId()))
+                        .orElse(true);
+                if (newSlugAvailable) {
+                    cat.setSlug(m.newSlug());
+                }
+                cat.setName(m.name());
+                cat.setDescription(m.description());
+                cat.setImage(m.image());
+                cat.setSortOrder(sortOrder);
+                categoryRepository.save(cat);
+                log.info("Category migrated: {} -> {}", m.oldSlug(), cat.getSlug());
+            });
+        }
+    }
 
-        Category rauXanh = categories.get(0);
-        Category traiCay = categories.get(1);
-        Category thitSach = categories.get(2);
-        Category haiSan = categories.get(3);
-        Category thucPhamCheBien = categories.get(4);
+    private List<Category> ensureCtGroupCategoriesForProducts() {
+        record Spec(int order, String slug, String name, String description, String image) {}
+        List<Spec> specs = Arrays.asList(
+                new Spec(1, "do-thi-ha-tang", "Đô thị thông minh & Hạ tầng",
+                        "Giải pháp đô thị thông minh, hạ tầng giao thông và logistics xanh.",
+                        "/images/ctgroup/KV_Nganh-1.png"),
+                new Spec(2, "cong-nghe-cao", "Công nghệ cao & Sản xuất",
+                        "Bán dẫn, UAV, AI, công nghệ không gian và tự động hóa.",
+                        "/images/ctgroup/KV_Nganh-11.png"),
+                new Spec(3, "y-te-doi-song", "Y tế & Đời sống",
+                        "Thực phẩm sạch, y tế, công nghệ sinh học và chăm sóc sức khỏe.",
+                        "/images/ctgroup/KV_Nganh-3.png"),
+                new Spec(4, "nang-luong-moi-truong", "Năng lượng & Môi trường",
+                        "Tín chỉ carbon, tài sản số xanh và phát triển bền vững.",
+                        "/images/ctgroup/KV_Nganh-10.png"),
+                new Spec(5, "dich-vu-doi-moi", "Dịch vụ & Đổi mới sáng tạo",
+                        "CT Innovation Hub, tư vấn chuyển đổi số và đồng hành doanh nghiệp.",
+                        "/images/ctgroup/KV_Nganh-9.png")
+        );
+        List<Category> list = new ArrayList<>();
+        for (Spec s : specs) {
+            Category c = categoryRepository.findBySlug(s.slug())
+                    .orElseGet(() -> categoryRepository.save(Category.builder()
+                            .name(s.name())
+                            .slug(s.slug())
+                            .description(s.description())
+                            .image(s.image())
+                            .isActive(true)
+                            .sortOrder(s.order())
+                            .build()));
+            c.setName(s.name());
+            c.setDescription(s.description());
+            c.setImage(s.image());
+            c.setSortOrder(s.order());
+            c.setIsActive(true);
+            categoryRepository.save(c);
+            list.add(c);
+        }
+        return list;
+    }
 
-        // Create products
+    private void initializeProducts() {
+        List<Category> categories = ensureCtGroupCategoriesForProducts();
+        Category catDoThi = categories.get(0);
+        Category catCnCao = categories.get(1);
+        Category catYTe = categories.get(2);
+        Category catNangLuong = categories.get(3);
+        Category catDichVu = categories.get(4);
+
         List<Product> products = Arrays.asList(
-            Product.builder()
-                .name("Rau Muống Hữu Cơ")
-                .slug("rau-muong-huu-co")
-                .description("Rau muống trồng theo phương pháp hữu cơ, không thuốc trừ sâu, an toàn cho sức khỏe.")
-                .shortDesc("Rau xanh sạch 100% hữu cơ")
-                .price(new BigDecimal("25000"))
-                .comparePrice(new BigDecimal("35000"))
-                .sku("GL-RAU001")
-                .image("https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600")
-                .images(new HashSet<>(Arrays.asList(
-                    "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=600",
-                    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600"
-                )))
-                .stock(150)
-                .unit("bó")
-                .calories(20)
-                .weight("500g")
-                .isActive(true)
-                .isFeatured(true)
-                .isBestSeller(true)
-                .category(rauXanh)
-                .build(),
-
-            Product.builder()
-                .name("Cà Chua Organic")
-                .slug("ca-chua-organic")
-                .description("Cà chua trồng organic, vị ngọt tự nhiên, giàu lycopene.")
-                .shortDesc("Cà chua hữu cơ Việt Nam")
-                .price(new BigDecimal("35000"))
-                .sku("GL-RAU002")
-                .image("https://images.unsplash.com/photo-1585841482738-74b1cdbde3cd?w=600")
-                .stock(200)
-                .unit("kg")
-                .calories(18)
-                .weight("1kg")
-                .isActive(true)
-                .isFeatured(false)
-                .category(rauXanh)
-                .build(),
-
-            Product.builder()
-                .name("Bông Cải Xanh")
-                .slug("bong-cai-xanh")
-                .description("Bông cải xanh (Broccoli) nhập khẩu, tươi xanh, giàu vitamin C và chất xơ.")
-                .shortDesc("Broccoli nhập khẩu tươi")
-                .price(new BigDecimal("45000"))
-                .comparePrice(new BigDecimal("55000"))
-                .sku("GL-RAU003")
-                .image("https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=600")
-                .stock(80)
-                .unit("bó")
-                .calories(34)
-                .weight("400g")
-                .isActive(true)
-                .isFeatured(true)
-                .category(rauXanh)
-                .build(),
-
-            Product.builder()
-                .name("Táo Fuji Nhật Bản")
-                .slug("tao-fuji-nhat-ban")
-                .description("Táo Fuji nhập khẩu từ Nhật Bản, vị giòn ngọt, giàu dinh dưỡng.")
-                .shortDesc("Táo Nhật Bản cao cấp")
-                .price(new BigDecimal("89000"))
-                .comparePrice(new BigDecimal("120000"))
-                .sku("GL-TRAI001")
-                .image("https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600")
-                .images(new HashSet<>(Arrays.asList(
-                    "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=600",
-                    "https://images.unsplash.com/photo-1584306670957-acf935f5033c?w=600"
-                )))
-                .stock(100)
-                .unit("kg")
-                .calories(52)
-                .weight("1kg")
-                .isActive(true)
-                .isFeatured(true)
-                .isBestSeller(true)
-                .category(traiCay)
-                .build(),
-
-            Product.builder()
-                .name("Cam Valencia")
-                .slug("cam-valencia")
-                .description("Cam Valencia Tây Ban Nha, nhiều nước, ngọt thơm, giàu vitamin C.")
-                .shortDesc("Cam Tây Ban Nha nhập khẩu")
-                .price(new BigDecimal("65000"))
-                .sku("GL-TRAI002")
-                .image("https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=600")
-                .stock(120)
-                .unit("kg")
-                .calories(47)
-                .weight("1kg")
-                .isActive(true)
-                .isFeatured(false)
-                .category(traiCay)
-                .build(),
-
-            Product.builder()
-                .name("Nho Đỏ Chile")
-                .slug("nho-do-chile")
-                .description("Nho đỏ nhập khẩu từ Chile, quả mọng, ngọt thanh, giàu chất chống oxy hóa.")
-                .shortDesc("Nho Chile cao cấp")
-                .price(new BigDecimal("95000"))
-                .comparePrice(new BigDecimal("110000"))
-                .sku("GL-TRAI003")
-                .image("https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=600")
-                .stock(60)
-                .unit("hộp")
-                .calories(69)
-                .weight("500g")
-                .isActive(true)
-                .isFeatured(true)
-                .category(traiCay)
-                .build(),
-
-            Product.builder()
-                .name("Thịt Bò Mỹ USDA")
-                .slug("thit-bo-my-usda")
-                .description("Thịt bò Mỹ USDA Prime, thớt thịt mềm, ngon tuyệt vời.")
-                .shortDesc("Thịt bò Mỹ hảo hạng")
-                .price(new BigDecimal("320000"))
-                .comparePrice(new BigDecimal("380000"))
-                .sku("GL-THIT001")
-                .image("https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=600")
-                .images(new HashSet<>(Arrays.asList(
-                    "https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=600",
-                    "https://images.unsplash.com/photo-1607623814075-51a5153e23e9?w=600"
-                )))
-                .stock(50)
-                .unit("kg")
-                .calories(250)
-                .weight("500g")
-                .isActive(true)
-                .isFeatured(true)
-                .isBestSeller(true)
-                .category(thitSach)
-                .build(),
-
-            Product.builder()
-                .name("Thịt Gà Cơn Sạch")
-                .slug("thit-ga-con-sach")
-                .description("Thịt gà công nghiệp sạch, nuôi tự nhiên, thịt dai ngon.")
-                .shortDesc("Gà ta nuôi thả tự nhiên")
-                .price(new BigDecimal("85000"))
-                .sku("GL-THIT002")
-                .image("https://images.unsplash.com/photo-1609208248494-56d3e18c98b4?w=600")
-                .stock(80)
-                .unit("con")
-                .calories(165)
-                .weight("1.2kg")
-                .isActive(true)
-                .isFeatured(false)
-                .category(thitSach)
-                .build(),
-
-            Product.builder()
-                .name("Tôm Thẻ Tươi Sống")
-                .slug("tom-the-tuoi-song")
-                .description("Tôm thẻ tươi sống, vỏ bóng, thịt chắc ngọt.")
-                .shortDesc("Tôm biển tươi sống")
-                .price(new BigDecimal("180000"))
-                .comparePrice(new BigDecimal("220000"))
-                .sku("GL-HAISAN001")
-                .image("https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=600")
-                .stock(40)
-                .unit("kg")
-                .calories(90)
-                .weight("500g")
-                .isActive(true)
-                .isFeatured(true)
-                .category(haiSan)
-                .build(),
-
-            Product.builder()
-                .name("Cá Hồi Na Uy")
-                .slug("ca-hoi-na-uy")
-                .description("Cá hồi Na Uy đông lạnh, thịt màu cam đẹp, giàu Omega-3.")
-                .shortDesc("Cá hồi Na Uy cao cấp")
-                .price(new BigDecimal("450000"))
-                .comparePrice(new BigDecimal("520000"))
-                .sku("GL-HAISAN002")
-                .image("https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600")
-                .stock(30)
-                .unit("kg")
-                .calories(208)
-                .weight("500g")
-                .isActive(true)
-                .isFeatured(true)
-                .isBestSeller(true)
-                .category(haiSan)
-                .build(),
-
-            Product.builder()
-                .name("Nước Ép Cam Nguyên Chất")
-                .slug("nuoc-ep-cam-nguyen-chat")
-                .description("Nước ép cam 100% nguyên chất, không đường, không chất bảo quản.")
-                .shortDesc("Nước ép cam nguyên chất 1L")
-                .price(new BigDecimal("55000"))
-                .sku("GL-TPHA001")
-                .image("https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600")
-                .stock(200)
-                .unit("chai")
-                .calories(45)
-                .weight("1L")
-                .isActive(true)
-                .isFeatured(false)
-                .category(thucPhamCheBien)
-                .build(),
-
-            Product.builder()
-                .name("Sữa Chua Hy Lạp")
-                .slug("sua-chua-hy-lap")
-                .description("Sữa chua Hy Lạp original, giàu protein, hương vị thơm ngon.")
-                .shortDesc("Sữa chua Hy Lạp 400g")
-                .price(new BigDecimal("68000"))
-                .comparePrice(new BigDecimal("80000"))
-                .sku("GL-TPHA002")
-                .image("https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600")
-                .stock(150)
-                .unit("hộp")
-                .calories(100)
-                .weight("400g")
-                .isActive(true)
-                .isFeatured(true)
-                .category(thucPhamCheBien)
-                .build()
+                Product.builder()
+                        .name("Gói tích hợp Smart City")
+                        .slug("goi-tich-hop-smart-city")
+                        .description("Khung giải pháp đô thị thông minh: IoT, dữ liệu đô thị, tích hợp hệ thống quản trị.")
+                        .shortDesc("Smart City — tư vấn & triển khai")
+                        .price(new BigDecimal("0"))
+                        .sku("CT-SC-001")
+                        .image("/images/ctgroup/KV_Nganh-1.png")
+                        .stock(999)
+                        .unit("gói")
+                        .isActive(true)
+                        .isFeatured(true)
+                        .isBestSeller(false)
+                        .category(catDoThi)
+                        .build(),
+                Product.builder()
+                        .name("Hệ thống giám sát UAV công nghiệp")
+                        .slug("he-thong-giam-sat-uav")
+                        .description("Nền tảng điều phối UAV, giám sát an ninh và khảo sát hạ tầng.")
+                        .shortDesc("UAV — nền tảng giám sát")
+                        .price(new BigDecimal("0"))
+                        .sku("CT-UAV-001")
+                        .image("/images/ctgroup/KV_Nganh-4.png")
+                        .stock(999)
+                        .unit("hệ thống")
+                        .isActive(true)
+                        .isFeatured(true)
+                        .category(catCnCao)
+                        .build(),
+                Product.builder()
+                        .name("Nền tảng phân tích AI doanh nghiệp")
+                        .slug("nen-tang-phan-tich-ai")
+                        .description("Ứng dụng machine learning cho vận hành, dự báo và tối ưu quy trình.")
+                        .shortDesc("AI — phân tích & tự động hóa")
+                        .price(new BigDecimal("0"))
+                        .sku("CT-AI-001")
+                        .image("/images/ctgroup/KV_Nganh-2.png")
+                        .stock(999)
+                        .unit("nền tảng")
+                        .isActive(true)
+                        .isFeatured(true)
+                        .category(catCnCao)
+                        .build(),
+                Product.builder()
+                        .name("Liên hợp thực phẩm sạch & y tế")
+                        .slug("lien-hop-thuc-pham-y-te")
+                        .description("Mô hình chuỗi cung ứng thực phẩm sạch kết hợp dịch vụ chăm sóc sức khỏe.")
+                        .shortDesc("Clean food & healthcare")
+                        .price(new BigDecimal("0"))
+                        .sku("CT-HE-001")
+                        .image("/images/ctgroup/KV_Nganh-3.png")
+                        .stock(999)
+                        .unit("gói")
+                        .isActive(true)
+                        .isFeatured(false)
+                        .category(catYTe)
+                        .build(),
+                Product.builder()
+                        .name("Tư vấn thị trường tín chỉ carbon")
+                        .slug("tu-van-tin-chi-carbon")
+                        .description("Hỗ trợ doanh nghiệp tiếp cận cơ chế tín chỉ carbon và báo cáo ESG.")
+                        .shortDesc("Carbon credits & ESG")
+                        .price(new BigDecimal("0"))
+                        .sku("CT-CARBON-001")
+                        .image("/images/ctgroup/KV_Nganh-10.png")
+                        .stock(999)
+                        .unit("dự án")
+                        .isActive(true)
+                        .isFeatured(true)
+                        .category(catNangLuong)
+                        .build(),
+                Product.builder()
+                        .name("Chương trình CT Innovation Hub 4.0")
+                        .slug("ct-innovation-hub-4")
+                        .description("Ươm tạo startup, lab công nghệ và kết nối đối tác chiến lược.")
+                        .shortDesc("Innovation Hub 4.0")
+                        .price(new BigDecimal("0"))
+                        .sku("CT-HUB-001")
+                        .image("/images/ctgroup/KV_Nganh-9.png")
+                        .stock(999)
+                        .unit("chương trình")
+                        .isActive(true)
+                        .isFeatured(true)
+                        .isBestSeller(true)
+                        .category(catDichVu)
+                        .build()
         );
 
         productRepository.saveAll(products);
-        log.info("Sample products created");
+        log.info("CT GROUP demo products created ({} items)", products.size());
     }
 }

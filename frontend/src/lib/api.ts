@@ -1,15 +1,28 @@
-const API_URL = 'https://backend-production-446d.up.railway.app/api';
+/**
+ * Trình duyệt: gọi `/api` (cùng origin với Next) — next.config.js rewrite sang Spring Boot.
+ * Server (SSR): gọi trực tiếp backend qua INTERNAL_API_URL hoặc NEXT_PUBLIC_API_URL.
+ */
+function resolveApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return '/api';
+  }
+  const raw = (
+    (typeof process !== 'undefined' && process.env.INTERNAL_API_URL) ||
+    (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) ||
+    'http://127.0.0.1:5000'
+  ).toString();
+  return `${raw.replace(/\/$/, '')}/api`;
+}
 
 interface FetchOptions extends RequestInit {
   token?: string;
 }
 
 class ApiClient {
-  private baseUrl = API_URL;
-
   private async fetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
     const { token, ...fetchOptions } = options;
-    
+    const baseUrl = resolveApiBaseUrl();
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...fetchOptions.headers,
@@ -19,21 +32,46 @@ class ApiClient {
       (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...fetchOptions,
-      headers,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Request failed' }));
-      throw new Error(error.error || 'Request failed');
+    let response: Response;
+    try {
+      response = await fetch(`${baseUrl}${endpoint}`, {
+        ...fetchOptions,
+        headers,
+      });
+    } catch {
+      throw new Error(
+        typeof window !== 'undefined'
+          ? 'Cannot reach API. Start the backend (e.g. mvn spring-boot:run -Pdev), then reload. Requests use Next.js /api proxy — ensure port matches BACKEND_URL or NEXT_PUBLIC_API_URL in .env.local.'
+          : `Cannot reach API at ${baseUrl}. Set INTERNAL_API_URL or NEXT_PUBLIC_API_URL.`
+      );
     }
 
     if (response.status === 204) {
       return {} as T;
     }
 
-    return response.json();
+    const json = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const msg =
+        (json as { message?: string; error?: string }).message ||
+        (json as { message?: string; error?: string }).error ||
+        'Request failed';
+      throw new Error(msg);
+    }
+
+    // Spring ApiResponse { success, message, data }
+    if (json && typeof json === 'object' && 'success' in json) {
+      const wrap = json as { success: boolean; message?: string; data?: unknown };
+      if (wrap.success === false) {
+        throw new Error(wrap.message || 'Request failed');
+      }
+      if ('data' in wrap && wrap.data !== undefined) {
+        return wrap.data as T;
+      }
+    }
+
+    return json as T;
   }
 
   // Auth
@@ -83,17 +121,11 @@ class ApiClient {
         if (value !== undefined) searchParams.append(key, String(value));
       });
     }
-    const response = await this.fetch<any>(
-      `/products?${searchParams.toString()}`
-    );
-    // Handle both response formats
+    const response = await this.fetch<any>(`/products?${searchParams.toString()}`);
     if (response.items && response.total !== undefined) {
       return response;
     }
-    if (response.data) {
-      return response.data;
-    }
-    return { items: response, total: Array.isArray(response) ? response.length : 0 };
+    return { items: [], total: 0 };
   }
 
   async getProduct(slug: string) {
@@ -104,7 +136,7 @@ class ApiClient {
   async getCategories() {
     const response = await this.fetch<any>('/categories');
     if (Array.isArray(response)) return response;
-    return response.data || [];
+    return [];
   }
 
   async getCategory(slug: string) {
@@ -143,54 +175,98 @@ class ApiClient {
       });
     }
     const response = await this.fetch<{ items: any[]; total: number }>(`/articles?${searchParams.toString()}`);
-    // Handle both response formats: { items, total } or { data: { items, total } }
     if (response.items && response.total !== undefined) {
       return response;
     }
-    return response.data || { items: [], total: 0 };
+    return { items: [], total: 0 };
   }
 
   async getArticle(slug: string, locale?: string) {
     const searchParams = new URLSearchParams();
     if (locale) searchParams.append('locale', locale);
     const queryString = searchParams.toString();
-    const response = await this.fetch<any>(`/articles/${slug}${queryString ? `?${queryString}` : ''}`);
-    return response.data;
+    return this.fetch<any>(`/articles/${slug}${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getFeaturedArticles(locale?: string) {
+    const q = locale ? `?locale=${encodeURIComponent(locale)}` : '';
+    return this.fetch<any[]>(`/articles/featured${q}`);
+  }
+
+  // CT GROUP — public
+  async submitContact(data: {
+    name: string;
+    email: string;
+    phone?: string;
+    subject?: string;
+    message: string;
+  }) {
+    return this.fetch<{ id: string }>('/public/contacts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getBusinessSectors(locale?: string) {
+    const q = locale ? `?locale=${encodeURIComponent(locale)}` : '';
+    return this.fetch<
+      Array<{
+        id: string;
+        slug: string;
+        sortOrder: number;
+        imagePath: string;
+        title: string;
+        subtitle: string;
+        description: string;
+        detailHref: string;
+      }>
+    >(`/public/business-sectors${q}`);
+  }
+
+  async getBusinessSectorBySlug(slug: string, locale?: string) {
+    const q = locale ? `?locale=${encodeURIComponent(locale)}` : '';
+    return this.fetch<{
+      id: string;
+      slug: string;
+      sortOrder: number;
+      imagePath: string;
+      title: string;
+      subtitle: string;
+      description: string;
+      detailHref: string;
+    }>(`/public/business-sectors/${encodeURIComponent(slug)}${q}`);
   }
 
   // Admin APIs
   async getDashboardStats(token: string, period: string = 'week') {
-    const response = await this.fetch<any>(`/dashboard/stats?period=${period}`, { token });
-    return response.data;
+    return this.fetch<any>(`/dashboard/stats?period=${period}`, { token });
   }
 
   async getRecentOrders(token: string) {
-    const response = await this.fetch<any[]>('/dashboard/recent-orders', { token });
-    return response.data || [];
+    const r = await this.fetch<any[]>('/dashboard/recent-orders', { token });
+    return r || [];
   }
 
   async getTopProducts(token: string) {
-    const response = await this.fetch<any[]>('/dashboard/top-products', { token });
-    return response.data || [];
+    const r = await this.fetch<any[]>('/dashboard/top-products', { token });
+    return r || [];
   }
 
   // CRUD Admin
   async createProduct(token: string, data: any) {
-    const response = await this.fetch<any>('/products', {
+    return this.fetch<any>('/products', {
       method: 'POST',
       token,
       body: JSON.stringify(data),
     });
-    return response.data;
   }
 
   async updateProduct(token: string, id: string, data: any) {
-    const response = await this.fetch<any>(`/products/${id}`, {
+    return this.fetch<any>(`/products/${id}`, {
       method: 'PUT',
       token,
       body: JSON.stringify(data),
     });
-    return response.data;
   }
 
   async deleteProduct(token: string, id: string) {
@@ -202,21 +278,19 @@ class ApiClient {
 
   // Categories Admin
   async createCategory(token: string, data: any) {
-    const response = await this.fetch<any>('/categories', {
+    return this.fetch<any>('/categories', {
       method: 'POST',
       token,
       body: JSON.stringify(data),
     });
-    return response.data;
   }
 
   async updateCategory(token: string, id: string, data: any) {
-    const response = await this.fetch<any>(`/categories/${id}`, {
+    return this.fetch<any>(`/categories/${id}`, {
       method: 'PUT',
       token,
       body: JSON.stringify(data),
     });
-    return response.data;
   }
 
   async deleteCategory(token: string, id: string) {
@@ -234,26 +308,23 @@ class ApiClient {
       if (params.limit !== undefined) searchParams.append('limit', String(params.limit));
       if (params.includeUnpublished) searchParams.append('includeUnpublished', 'true');
     }
-    const response = await this.fetch<any>(`/admin/articles?${searchParams.toString()}`, { token });
-    return response.data || response;
+    return this.fetch<any>(`/admin/articles?${searchParams.toString()}`, { token });
   }
 
   async createArticle(token: string, data: any) {
-    const response = await this.fetch<any>('/admin/articles', {
+    return this.fetch<any>('/admin/articles', {
       method: 'POST',
       token,
       body: JSON.stringify(data),
     });
-    return response.data;
   }
 
   async updateArticle(token: string, id: string, data: any) {
-    const response = await this.fetch<any>(`/admin/articles/${id}`, {
+    return this.fetch<any>(`/admin/articles/${id}`, {
       method: 'PUT',
       token,
       body: JSON.stringify(data),
     });
-    return response.data;
   }
 
   async deleteArticle(token: string, id: string) {
@@ -265,12 +336,11 @@ class ApiClient {
 
   // Orders Admin
   async updateOrderStatus(token: string, id: string, status: string, note?: string) {
-    const response = await this.fetch<any>(`/orders/${id}/status`, {
+    return this.fetch<any>(`/orders/${id}/status`, {
       method: 'PUT',
       token,
       body: JSON.stringify({ status, note }),
     });
-    return response.data;
   }
 
   // Users Admin
@@ -281,27 +351,23 @@ class ApiClient {
         if (value !== undefined) searchParams.append(key, String(value));
       });
     }
-    // Backend endpoint: /api/admin/users
-    const response = await this.fetch<{ items: any[]; total: number }>(`/admin/users?${searchParams.toString()}`, { token });
-    return response.data || response;
+    return this.fetch<{ items: any[]; total: number }>(`/admin/users?${searchParams.toString()}`, { token });
   }
 
   async updateUser(token: string, id: string, data: any) {
-    const response = await this.fetch<any>(`/admin/users/${id}`, {
+    return this.fetch<any>(`/admin/users/${id}`, {
       method: 'PUT',
       token,
       body: JSON.stringify(data),
     });
-    return response.data;
   }
 
   async assignUserRoles(token: string, userId: string, roleIds: string[]) {
-    const response = await this.fetch<any>(`/admin/users/${userId}/roles`, {
+    return this.fetch<any>(`/admin/users/${userId}/roles`, {
       method: 'POST',
       token,
       body: JSON.stringify({ roleIds }),
     });
-    return response.data;
   }
 
   async deleteUser(token: string, id: string) {
@@ -313,26 +379,24 @@ class ApiClient {
 
   // RBAC Admin
   async getRoles(token: string) {
-    const response = await this.fetch<any[]>('/roles', { token });
-    return response.data || response || [];
+    const r = await this.fetch<any[]>('/roles', { token });
+    return r || [];
   }
 
   async createRole(token: string, data: any) {
-    const response = await this.fetch<any>('/roles', {
+    return this.fetch<any>('/roles', {
       method: 'POST',
       token,
       body: JSON.stringify(data),
     });
-    return response.data;
   }
 
   async updateRole(token: string, id: string, data: any) {
-    const response = await this.fetch<any>(`/roles/${id}`, {
+    return this.fetch<any>(`/roles/${id}`, {
       method: 'PUT',
       token,
       body: JSON.stringify(data),
     });
-    return response.data;
   }
 
   async deleteRole(token: string, id: string) {
@@ -343,22 +407,19 @@ class ApiClient {
   }
 
   async assignRolePermissions(token: string, roleId: string, permissionIds: string[]) {
-    const response = await this.fetch<any>(`/roles/${roleId}/permissions`, {
+    return this.fetch<any>(`/roles/${roleId}/permissions`, {
       method: 'POST',
       token,
-      body: JSON.stringify(permissionIds), // Backend expects array of permission IDs directly
+      body: JSON.stringify(permissionIds),
     });
-    return response.data;
   }
 
   async getPermissions(token: string) {
-    const response = await this.fetch<{ permissions: any[]; grouped: Record<string, any[]> }>('/permissions', { token });
-    return response.data;
+    return this.fetch<{ permissions: any[]; grouped: Record<string, any[]> }>('/permissions', { token });
   }
 
   async getUserPermissions(token: string, userId: string) {
-    const response = await this.fetch<any>(`/users/${userId}/permissions`, { token });
-    return response.data;
+    return this.fetch<any>(`/users/${userId}/permissions`, { token });
   }
 }
 

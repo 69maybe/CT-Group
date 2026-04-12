@@ -1,20 +1,28 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
-import '@/app/globals.css';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { locales } from '@/i18n/config';
 import { notFound } from 'next/navigation';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import { ToasterProvider } from '@/components/ToasterProvider';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
+import DocumentLang from '@/components/DocumentLang';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata: Metadata = {
+  title: 'CT GROUP VIETNAM - Công Nghệ Cao',
+  description:
+    'CT GROUP VIETNAM - Đổi Mới Công Nghệ, Kiến Tạo Tương Lai. 15 lĩnh vực kinh doanh đa dạng từ Smart City đến AI.',
+  keywords: 'CT GROUP, Vietnam, technology, smart city, AI, biotech, drone, semiconductor',
+  icons: {
+    icon: '/images/ctgroup/logo.png',
+  },
+};
+
 export default async function LocaleLayout({
   children,
-  params: { locale }
+  params: { locale },
 }: {
   children: React.ReactNode;
   params: { locale: string };
@@ -27,13 +35,14 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
-        <ToasterProvider />
-        <NextIntlClientProvider messages={messages}>
-          {children}
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <>
+      <DocumentLang />
+      <ToasterProvider />
+      <NextIntlClientProvider messages={messages}>
+        <Header />
+        <main className="min-h-screen">{children}</main>
+        <Footer />
+      </NextIntlClientProvider>
+    </>
   );
 }

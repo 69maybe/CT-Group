@@ -49,6 +49,14 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // CT GROUP Brand Colors
+        ct: {
+          blue: "#1b86c8",
+          red: "#e82429",
+          dark: "#1a1a2e",
+          gray: "#6c757d",
+          light: "#f8f9fa",
+        }
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -14,8 +14,8 @@
     <groupId>com.greenlife</groupId>
     <artifactId>greenlife-backend</artifactId>
     <version>1.0.0</version>
-    <name>GreenLife Food Backend</name>
-    <description>E-Commerce Backend API for GreenLife Food Platform</description>
+    <name>CT GROUP API</name>
+    <description>Backend API for CT GROUP VIETNAM (corporate site, news, business sectors, contact)</description>
 
     <properties>
         <java.version>17</java.version>

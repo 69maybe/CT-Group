@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -27,29 +28,36 @@ export default function RegisterPage() {
 
     try {
       const response = await api.register({
-        name,
-        email,
+        name: name.trim(),
+        email: email.trim(),
         password,
-        phone: phone || undefined,
+        phone: phone.trim() || undefined,
       });
-      
-      // API returns: { data: { user, accessToken, refreshToken } }
-      const data = response.data || response;
+
+      const raw = response as {
+        user?: { id?: string; email?: string; name?: string; roles?: string[]; permissions?: string[] };
+        accessToken?: string;
+        refreshToken?: string;
+        permissions?: string[];
+        data?: typeof response;
+      };
+      const data = raw?.data && typeof raw.data === 'object' && 'user' in raw.data ? raw.data : raw;
       const userData = data.user;
-      
+
       if (!userData?.id) {
         throw new Error('Invalid response from server');
       }
 
       setAuth(
         {
-          id: userData.id,
-          email: userData.email,
-          name: userData.name,
-          permissions: [],
-          roles: ['Customer'],
+          id: String(userData.id),
+          email: userData.email ?? '',
+          name: userData.name ?? '',
+          phone: phone.trim() || undefined,
+          permissions: data.permissions ?? userData.permissions ?? [],
+          roles: userData.roles ?? [],
         },
-        data.accessToken,
+        data.accessToken ?? '',
         data.refreshToken
       );
 
@@ -147,12 +155,12 @@ export default function RegisterPage() {
           <div className="mt-6 text-center">
             <p className="text-gray-600 text-sm">
               {t('hasAccount')}{' '}
-              <a
+              <Link
                 href={`/${locale}/login`}
-                className="text-primary-600 font-medium hover:underline"
+                className="font-semibold text-ct-blue hover:text-blue-700 underline-offset-2 hover:underline"
               >
                 {t('login')}
-              </a>
+              </Link>
             </p>
           </div>
         </div>

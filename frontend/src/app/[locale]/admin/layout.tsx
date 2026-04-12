@@ -1,28 +1,36 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { LayoutDashboard, Package, FolderTree, ShoppingBag, FileText, Users, Shield, Settings } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+function activeAdminMenuId(pathname: string | null, locale: string): string {
+  if (!pathname) return 'dashboard';
+  const base = `/${locale}/admin`;
+  if (pathname === base || pathname === `${base}/`) return 'dashboard';
+  if (!pathname.startsWith(`${base}/`)) return 'dashboard';
+  const rest = pathname.slice(base.length + 1).split('/')[0];
+  return rest || 'dashboard';
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [activeMenu, setActiveMenu] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string>('');
   const { user, isAuthenticated, accessToken } = useAuthStore();
   const params = useParams();
   const locale = params.locale as string;
+  const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations('admin');
 
+  const activeMenu = useMemo(() => activeAdminMenuId(pathname, locale), [pathname, locale]);
+
   const menuItems = [
     { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard, href: '' },
-    { id: 'products', label: t('products'), icon: Package, href: '/products' },
-    { id: 'categories', label: t('categories'), icon: FolderTree, href: '/categories' },
-    { id: 'orders', label: t('orders'), icon: ShoppingBag, href: '/orders' },
     { id: 'articles', label: t('articles'), icon: FileText, href: '/articles' },
     { id: 'users', label: t('users'), icon: Users, href: '/users' },
     { id: 'roles', label: t('roles'), icon: Shield, href: '/roles' },
@@ -131,7 +139,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     ? 'bg-primary-50 text-primary-600 font-medium'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
-                onClick={() => setActiveMenu(item.id)}
               >
                 <item.icon className="w-5 h-5" />
                 {item.label}

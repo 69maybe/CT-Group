@@ -6,7 +6,7 @@
   },
   "deploy": {
     "numReplicas": 1,
-    "healthCheckPath": "/",
+    "healthCheckPath": "/health",
     "port": 5000
   }
 }
