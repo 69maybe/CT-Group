@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  defaultLocalBackend,
+  normalizeBackendOrigin,
+  usingDefaultLocalBackend,
+} from '@/lib/backendOrigin';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,17 +13,7 @@ function backendOrigin(): string {
     process.env.NEXT_PUBLIC_API_URL ||
     process.env.INTERNAL_API_URL ||
     '';
-  const trimmed = raw.trim().replace(/\/$/, '');
-  return trimmed || 'http://127.0.0.1:5000';
-}
-
-function usingDefaultLocalBackend(origin: string): boolean {
-  return (
-    origin === 'http://127.0.0.1:5000' ||
-    origin === 'http://localhost:5000' ||
-    origin.startsWith('http://127.0.0.1:') ||
-    origin.startsWith('http://localhost:')
-  );
+  return normalizeBackendOrigin(raw || defaultLocalBackend());
 }
 
 async function proxy(req: NextRequest, pathSegments: string[]) {
@@ -59,8 +54,8 @@ async function proxy(req: NextRequest, pathSegments: string[]) {
   } catch (err) {
     console.error('[api proxy]', target, err);
     const railwayHint = usingDefaultLocalBackend(origin)
-      ? ' Railway / Docker: trên service Frontend đặt BACKEND_URL và NEXT_PUBLIC_API_URL = URL public của Spring Boot (https://…, không / cuối).'
-      : ' Kiểm tra backend đã chạy, HTTPS, firewall; BACKEND_URL / NEXT_PUBLIC_API_URL đúng chưa.';
+      ? ' Railway: trên service Frontend đặt BACKEND_URL = https://<domain-backend>.up.railway.app (có https://, không / cuối). Trên service Backend: cổng Public Networking phải trùng cổng app (Spring dùng biến PORT; mặc định yaml 5000 — nếu Railway hiện Port 8080 thì thêm PORT=8080 hoặc đổi public port về 5000).'
+      : ' Kiểm tra backend đã chạy; trên Railway Networking, port public phải trùng port process (Spring dùng biến PORT).';
     return NextResponse.json(
       {
         success: false,

@@ -1,5 +1,7 @@
+import { defaultLocalBackend, normalizeBackendOrigin } from '@/lib/backendOrigin';
+
 /**
- * Trình duyệt: gọi `/api` (cùng origin với Next) — next.config.js rewrite sang Spring Boot.
+ * Trình duyệt: gọi `/api` (cùng origin với Next) — proxy route → Spring Boot.
  * Server (SSR): gọi trực tiếp backend qua INTERNAL_API_URL, BACKEND_URL hoặc NEXT_PUBLIC_API_URL.
  */
 function resolveApiBaseUrl(): string {
@@ -10,9 +12,9 @@ function resolveApiBaseUrl(): string {
     (typeof process !== 'undefined' && process.env.INTERNAL_API_URL) ||
     (typeof process !== 'undefined' && process.env.BACKEND_URL) ||
     (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL) ||
-    'http://127.0.0.1:5000'
+    defaultLocalBackend()
   ).toString();
-  return `${raw.replace(/\/$/, '')}/api`;
+  return `${normalizeBackendOrigin(raw)}/api`;
 }
 
 interface FetchOptions extends RequestInit {

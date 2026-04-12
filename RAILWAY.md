@@ -59,6 +59,12 @@ Sau deploy, mở **public URL** của service API — `GET /health` trả `OK`.
 - `application-prod.yml` dùng `sslmode=require` — phù hợp Postgres trên Railway.  
 - Nếu đổi domain tùy chỉnh, cập nhật lại `CORS_ORIGINS` và các URL trong biến frontend.
 
+### Frontend 502 — Backend unreachable
+
+- `BACKEND_URL` / `NEXT_PUBLIC_API_URL` phải là URL đầy đủ, ví dụ `https://backend-production-xxxx.up.railway.app` (có `https://`, không `/` cuối). Chỉ hostname không scheme sẽ làm `fetch` lỗi; code frontend đã tự thêm `https://` nếu thiếu.
+- **Public Networking → Port** trên service **Backend** phải trùng cổng Spring Boot đang lắng nghe: `application-prod.yml` dùng `server.port: ${PORT:5000}`. Railway thường inject `PORT` khớp cổng bạn chọn (nhiều project hiện **8080**). Nếu UI là 8080 mà app chỉ bind 5000 → sửa: (1) đặt biến `PORT=8080` trên backend, hoặc (2) đổi public port trong Networking về **5000**, hoặc (3) chỉnh `railway.json` `deploy.port` cho khớp.
+- Domain frontend (`ct-group-production…`) và backend (`backend-production…`) là **hai service khác nhau** — `BACKEND_URL` trên frontend phải là domain **backend**, không nhầm domain frontend.
+
 ### Postgres “trống” dù API đã chạy
 
 - Seed dữ liệu (roles, tin mẫu, `business_sectors`, …) chỉ chạy **một lần khi backend khởi động** (`CommandLineRunner` / `ApplicationRunner`).  
