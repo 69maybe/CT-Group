@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { LayoutDashboard, FileText, Users, Shield, Grid3X3 } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Shield, Grid3X3, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 function activeAdminMenuId(pathname: string | null, locale: string): string {
@@ -18,6 +18,7 @@ function activeAdminMenuId(pathname: string | null, locale: string): string {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [contentOpen, setContentOpen] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string>('');
   const { user, isAuthenticated, accessToken } = useAuthStore();
@@ -30,16 +31,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const activeMenu = useMemo(() => activeAdminMenuId(pathname, locale), [pathname, locale]);
 
   const menuItems = [
-    { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard, href: '' },
-    { id: 'articles', label: t('articles'), icon: FileText, href: '/articles' },
-    { id: 'sectors', label: locale === 'vi' ? 'Lĩnh vực' : 'Sectors', icon: Grid3X3, href: '/sectors' },
     { id: 'users', label: t('users'), icon: Users, href: '/users' },
     { id: 'roles', label: t('roles'), icon: Shield, href: '/roles' },
   ];
 
+  const contentMenuItems = [
+    { id: 'articles', label: t('articles'), icon: FileText, href: '/articles' },
+    { id: 'article-tags', label: locale === 'vi' ? 'Tags & Thuộc tính' : 'Tags & Metadata', icon: FileText, href: '/articles/tags' },
+    { id: 'sectors', label: locale === 'vi' ? 'Lĩnh vực' : 'Sectors', icon: Grid3X3, href: '/sectors' },
+  ];
+
+  const isContentActive = pathname?.startsWith(`/${locale}/admin/articles`) || pathname?.startsWith(`/${locale}/admin/sectors`);
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isContentActive) {
+      setContentOpen(true);
+    }
+  }, [isContentActive]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -131,6 +143,50 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Sidebar */}
         <aside className={`bg-white shadow-sm transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'}`}>
           <nav className="p-4 space-y-1">
+            <Link
+              href={`/${locale}/admin`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                activeMenu === 'dashboard'
+                  ? 'bg-primary-50 text-primary-600 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <LayoutDashboard className="w-5 h-5" />
+              {t('dashboard')}
+            </Link>
+
+            <button
+              onClick={() => setContentOpen(!contentOpen)}
+              className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isContentActive ? 'bg-primary-50 text-primary-600 font-medium' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <FileText className="w-5 h-5" />
+                {locale === 'vi' ? 'Quản lí nội dung' : 'Content Management'}
+              </span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${contentOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {contentOpen && (
+              <div className="ml-4 space-y-1">
+                {contentMenuItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/${locale}/admin${item.href}`}
+                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm ${
+                      pathname === `/${locale}/admin${item.href}`
+                        ? 'bg-primary-50 text-primary-600 font-medium'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+
             {menuItems.map((item) => (
               <Link
                 key={item.id}
