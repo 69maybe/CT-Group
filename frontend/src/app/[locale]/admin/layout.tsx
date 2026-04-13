@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { LayoutDashboard, FileText, Users, Shield } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Shield, Grid3X3 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 function activeAdminMenuId(pathname: string | null, locale: string): string {
@@ -32,6 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const menuItems = [
     { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard, href: '' },
     { id: 'articles', label: t('articles'), icon: FileText, href: '/articles' },
+    { id: 'sectors', label: locale === 'vi' ? 'Lĩnh vực' : 'Sectors', icon: Grid3X3, href: '/sectors' },
     { id: 'users', label: t('users'), icon: Users, href: '/users' },
     { id: 'roles', label: t('roles'), icon: Shield, href: '/roles' },
   ];

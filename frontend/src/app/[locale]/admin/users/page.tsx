@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/api';
 import { formatDateTime } from '@/lib/utils';
-import { Users, Shield, Check, Edit, Trash2 } from 'lucide-react';
+import { Shield, Check, Edit, Trash2, ImagePlus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface User {
   id: string;
@@ -14,6 +15,7 @@ interface User {
   email: string;
   phone?: string;
   address?: string;
+  avatar?: string;
   isActive: boolean;
   createdAt: string;
   lastLoginAt?: string;
@@ -27,12 +29,33 @@ interface Role {
   description?: string;
 }
 
+interface UserFormData {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  address: string;
+  avatar: string;
+  isActive: boolean;
+}
+
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [roleUser, setRoleUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [formData, setFormData] = useState<UserFormData>({
+    name: '',
+    email: '',
+    password: '',
+    phone: '',
+    address: '',
+    avatar: '',
+    isActive: true,
+  });
   const { accessToken } = useAuthStore();
   const params = useParams();
   const locale = params.locale as string;
@@ -77,8 +100,21 @@ export default function AdminUsers() {
   };
 
   const openRolesModal = (user: User) => {
-    setSelectedUser(user);
+    setRoleUser(user);
     setSelectedRoles(user.roles || []);
+  };
+
+  const openEditModal = (user: User) => {
+    setEditingUser(user);
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      password: '',
+      phone: user.phone || '',
+      address: user.address || '',
+      avatar: user.avatar || '',
+      isActive: user.isActive,
+    });
   };
 
   const toggleRole = (roleName: string) => {
@@ -90,7 +126,7 @@ export default function AdminUsers() {
   };
 
   const saveRoles = async () => {
-    if (!accessToken || !selectedUser) return;
+    if (!accessToken || !roleUser) return;
     
     try {
       // Find role IDs from role names
@@ -98,13 +134,69 @@ export default function AdminUsers() {
         .filter(r => selectedRoles.includes(r.name))
         .map(r => r.id);
       
-      await api.assignUserRoles(accessToken, selectedUser.id, roleIds);
-      alert(t('updateRoleSuccess'));
-      setSelectedUser(null);
+      await api.assignUserRoles(accessToken, roleUser.id, roleIds);
+      toast.success(t('updateRoleSuccess'));
+      setRoleUser(null);
       fetchData();
     } catch (error: any) {
-      alert(error.message || t('error'));
+      toast.error(error.message || t('error'));
     }
+  };
+
+  const saveUser = async () => {
+    if (!accessToken || !editingUser) return;
+
+    if (!formData.name.trim() || !formData.email.trim()) {
+      toast.error(locale === 'vi' ? 'Vui lòng nhập tên và email' : 'Please enter name and email');
+      return;
+    }
+
+    if (formData.password && formData.password.length < 6) {
+      toast.error(locale === 'vi' ? 'Mật khẩu tối thiểu 6 ký tự' : 'Password must be at least 6 characters');
+      return;
+    }
+
+    try {
+      const payload: Record<string, any> = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        address: formData.address.trim(),
+        avatar: formData.avatar.trim(),
+        isActive: formData.isActive,
+      };
+      if (formData.password.trim()) {
+        payload.password = formData.password.trim();
+      }
+      await api.updateUser(accessToken, editingUser.id, payload);
+      toast.success(t('updateSuccess'));
+      setEditingUser(null);
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.message || t('error'));
+    }
+  };
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !accessToken) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error(locale === 'vi' ? 'Vui lòng chọn file hình ảnh hợp lệ' : 'Please choose a valid image file');
+      return;
+    }
+
+    setUploadingAvatar(true);
+    api
+      .uploadAdminImage(accessToken, file)
+      .then((res) => {
+        setFormData((prev) => ({ ...prev, avatar: res.path || res.url || '' }));
+        toast.success(locale === 'vi' ? 'Tải ảnh đại diện thành công' : 'Avatar uploaded successfully');
+      })
+      .catch((error: any) => {
+        toast.error(error.message || (locale === 'vi' ? 'Tải ảnh thất bại' : 'Upload failed'));
+      })
+      .finally(() => setUploadingAvatar(false));
   };
 
   const deleteUser = async (user: User) => {
@@ -113,10 +205,10 @@ export default function AdminUsers() {
     
     try {
       await api.deleteUser(accessToken, user.id);
-      alert(t('deleteUserSuccess'));
+      toast.success(t('deleteUserSuccess'));
       fetchData();
     } catch (error: any) {
-      alert(error.message || t('error'));
+      toast.error(error.message || t('error'));
     }
   };
 
@@ -185,6 +277,13 @@ export default function AdminUsers() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <button
+                        onClick={() => openEditModal(user)}
+                        className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-lg"
+                        title={locale === 'vi' ? 'Chỉnh sửa người dùng' : 'Edit user'}
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button
                         onClick={() => openRolesModal(user)}
                         className="p-2 text-gray-500 hover:text-primary-600 hover:bg-gray-100 rounded-lg"
                         title={locale === 'vi' ? 'Phân vai trò' : 'Assign roles'}
@@ -207,17 +306,144 @@ export default function AdminUsers() {
         </table>
       </div>
 
+      {/* Edit User Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b sticky top-0 bg-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold">{locale === 'vi' ? 'Chỉnh sửa người dùng' : 'Edit user'}</h2>
+                  <p className="text-sm text-gray-500">{editingUser.id}</p>
+                </div>
+                <button onClick={() => setEditingUser(null)} className="p-2 hover:bg-gray-100 rounded-lg">✕</button>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Họ và tên' : 'Full name'}</label>
+                  <input
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Mật khẩu mới' : 'New password'}</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder={locale === 'vi' ? 'Để trống nếu không đổi' : 'Leave blank to keep unchanged'}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Số điện thoại' : 'Phone'}</label>
+                  <input
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Địa chỉ' : 'Address'}</label>
+                <input
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{locale === 'vi' ? 'Ảnh đại diện' : 'Avatar'}</label>
+                <label className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                  <ImagePlus className="w-4 h-4" />
+                  <span className="text-sm">
+                    {uploadingAvatar
+                      ? (locale === 'vi' ? 'Đang tải ảnh...' : 'Uploading image...')
+                      : (locale === 'vi' ? 'Chọn ảnh từ máy' : 'Choose image from device')}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarFileChange}
+                    disabled={uploadingAvatar}
+                  />
+                </label>
+                {formData.avatar && (
+                  <div className="mt-3 relative w-20 h-20">
+                    <img src={formData.avatar} alt="" className="w-20 h-20 object-cover rounded-full border" />
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, avatar: '' }))}
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                      title={locale === 'vi' ? 'Xóa ảnh' : 'Remove image'}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="w-4 h-4 text-primary-500 rounded"
+                />
+                <span>{locale === 'vi' ? 'Tài khoản hoạt động' : 'Account is active'}</span>
+              </label>
+            </div>
+            <div className="p-6 border-t">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setEditingUser(null)}
+                  className="flex-1 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+                >
+                  {locale === 'vi' ? 'Hủy' : 'Cancel'}
+                </button>
+                <button
+                  onClick={saveUser}
+                  disabled={uploadingAvatar}
+                  className="flex-1 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-600"
+                >
+                  {locale === 'vi' ? 'Lưu thay đổi' : 'Save changes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Roles Modal */}
-      {selectedUser && (
+      {roleUser && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full">
             <div className="p-6 border-b">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold">{locale === 'vi' ? 'Phân vai trò' : 'Assign Roles'}</h2>
-                  <p className="text-sm text-gray-500">{selectedUser.name}</p>
+                  <p className="text-sm text-gray-500">{roleUser.name}</p>
                 </div>
-                <button onClick={() => setSelectedUser(null)} className="p-2 hover:bg-gray-100 rounded-lg">✕</button>
+                <button onClick={() => setRoleUser(null)} className="p-2 hover:bg-gray-100 rounded-lg">✕</button>
               </div>
             </div>
             <div className="p-6 space-y-2">
@@ -251,7 +477,7 @@ export default function AdminUsers() {
             <div className="p-6 border-t">
               <div className="flex gap-3">
                 <button
-                  onClick={() => setSelectedUser(null)}
+                  onClick={() => setRoleUser(null)}
                   className="flex-1 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
                 >
                   {locale === 'vi' ? 'Hủy' : 'Cancel'}

@@ -4,9 +4,22 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, FileText, Eye, Calendar, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Eye, Search, ImagePlus, X } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link', 'image'],
+    ['clean'],
+  ],
+};
 
 interface Article {
   id: string;
@@ -19,6 +32,7 @@ interface Article {
   contentEn?: string;
   image?: string;
   category: string;
+  tags?: string[];
   author?: string;
   isFeatured: boolean;
   isPublished: boolean;
@@ -30,6 +44,7 @@ interface Article {
 export default function AdminArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
@@ -48,9 +63,11 @@ export default function AdminArticles() {
     excerptEn: '',
     image: '',
     category: 'NEWS',
+    tags: [] as string[],
     isFeatured: false,
     isPublished: true,
   });
+  const [tagsInput, setTagsInput] = useState('');
 
   useEffect(() => {
     fetchArticles();
@@ -70,8 +87,8 @@ export default function AdminArticles() {
       console.error('Failed to fetch articles:', error);
       // Fallback: try alternative endpoint
       try {
-        const allResponse = await api.fetch<any>(`/articles?limit=100`, {});
-        const data = allResponse.data?.items || allResponse.data || [];
+        const allResponse = await api.getArticles({ page: 1 });
+        const data = allResponse?.items || [];
         setArticles(data);
       } catch (err) {
         console.error('Alternative fetch also failed:', err);
@@ -96,13 +113,28 @@ export default function AdminArticles() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const plainContent = formData.content.replace(/<[^>]*>/g, '').trim();
+    if (!plainContent) {
+      toast.error(locale === 'vi' ? 'Vui lòng nhập nội dung bài viết' : 'Please enter article content');
+      return;
+    }
+
+    const normalizedTags = Array.from(
+      new Set(
+        tagsInput
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean)
+      )
+    );
 
     try {
+      const payload = { ...formData, tags: normalizedTags };
       if (editingArticle) {
-        await api.updateArticle(accessToken!, editingArticle.id, formData);
+        await api.updateArticle(accessToken!, editingArticle.id, payload);
         toast.success(t('updateSuccess'));
       } else {
-        await api.createArticle(accessToken!, formData);
+        await api.createArticle(accessToken!, payload);
         toast.success(t('createSuccess'));
       }
       setShowForm(false);
@@ -125,9 +157,11 @@ export default function AdminArticles() {
       excerptEn: article.excerptEn || '',
       image: article.image || '',
       category: article.category || 'NEWS',
+      tags: article.tags || [],
       isFeatured: article.isFeatured || false,
       isPublished: article.isPublished || false,
     });
+    setTagsInput((article.tags || []).join(', '));
     setShowForm(true);
   };
 
@@ -141,15 +175,44 @@ export default function AdminArticles() {
       excerptEn: '',
       image: '',
       category: 'NEWS',
+      tags: [],
       isFeatured: false,
       isPublished: true,
     });
+    setTagsInput('');
   };
 
   const filteredArticles = articles.filter(article =>
     article.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     article.titleEn?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const suggestedTags = Array.from(
+    new Set(
+      articles.flatMap((article) => article.tags || []).filter(Boolean)
+    )
+  );
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !accessToken) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error(locale === 'vi' ? 'Vui lòng chọn file hình ảnh hợp lệ' : 'Please choose a valid image file');
+      return;
+    }
+    setUploadingImage(true);
+    api
+      .uploadAdminImage(accessToken, file)
+      .then((res) => {
+        setFormData((prev) => ({ ...prev, image: res.path || res.url || '' }));
+        toast.success(locale === 'vi' ? 'Tải ảnh lên thành công' : 'Image uploaded successfully');
+      })
+      .catch((error: any) => {
+        toast.error(error.message || (locale === 'vi' ? 'Tải ảnh thất bại' : 'Upload failed'));
+      })
+      .finally(() => setUploadingImage(false));
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center h-64">{tCommon('loading')}</div>;
@@ -159,13 +222,21 @@ export default function AdminArticles() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">{t('manageArticles')}</h1>
-        <button
-          onClick={() => { resetForm(); setEditingArticle(null); setShowForm(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600"
-        >
-          <Plus className="w-5 h-5" />
-          {t('addArticle')}
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/${locale}/admin/articles/tags`}
+            className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+          >
+            {locale === 'vi' ? 'Tags & Thuộc tính' : 'Tags & Metadata'}
+          </Link>
+          <button
+            onClick={() => { resetForm(); setEditingArticle(null); setShowForm(true); }}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600"
+          >
+            <Plus className="w-5 h-5" />
+            {t('addArticle')}
+          </button>
+        </div>
       </div>
 
       {/* Search */}
@@ -317,33 +388,63 @@ export default function AdminArticles() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Nội dung (VI)' : 'Content (VI)'}</label>
-                <textarea
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                  rows={8}
-                  required
-                />
+                <div className="rounded-lg border border-gray-300 overflow-hidden">
+                  <ReactQuill
+                    theme="snow"
+                    value={formData.content}
+                    onChange={(value) =>
+                      setFormData((prev) => (prev.content === value ? prev : { ...prev, content: value }))
+                    }
+                    modules={quillModules}
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Content (EN)</label>
-                <textarea
-                  value={formData.contentEn}
-                  onChange={(e) => setFormData({ ...formData, contentEn: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                  rows={8}
-                />
+                <div className="rounded-lg border border-gray-300 overflow-hidden">
+                  <ReactQuill
+                    theme="snow"
+                    value={formData.contentEn}
+                    onChange={(value) =>
+                      setFormData((prev) => (prev.contentEn === value ? prev : { ...prev, contentEn: value }))
+                    }
+                    modules={quillModules}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Hình ảnh' : 'Image (URL)'}</label>
-                  <input
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{locale === 'vi' ? 'Hình ảnh' : 'Image'}</label>
+                  <label className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <ImagePlus className="w-4 h-4" />
+                    <span className="text-sm">
+                      {uploadingImage
+                        ? (locale === 'vi' ? 'Đang tải ảnh...' : 'Uploading image...')
+                        : (locale === 'vi' ? 'Chọn ảnh từ máy' : 'Choose image from device')}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageFileChange}
+                      disabled={uploadingImage}
+                    />
+                  </label>
+                  {formData.image && (
+                    <div className="mt-3 relative w-32 h-32">
+                      <img src={formData.image} alt="" className="w-32 h-32 object-cover rounded-lg border" />
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, image: '' }))}
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                        title={locale === 'vi' ? 'Xóa ảnh' : 'Remove image'}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('categories')}</label>
@@ -357,6 +458,39 @@ export default function AdminArticles() {
                     <option value="PROMOTION">{locale === 'vi' ? 'Khuyến mãi' : 'Promotion'}</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {locale === 'vi' ? 'Tags (phân tách bằng dấu phẩy)' : 'Tags (comma separated)'}
+                </label>
+                <input
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  placeholder={locale === 'vi' ? 'Ví dụ: công nghệ, AI, chuyển đổi số' : 'e.g. technology, AI, innovation'}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                />
+                {suggestedTags.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {suggestedTags.slice(0, 12).map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => {
+                          const current = tagsInput
+                            .split(',')
+                            .map((x) => x.trim())
+                            .filter(Boolean);
+                          if (current.includes(tag)) return;
+                          setTagsInput([...current, tag].join(', '));
+                        }}
+                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                      >
+                        #{tag}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-6">
@@ -390,6 +524,7 @@ export default function AdminArticles() {
                 </button>
                 <button
                   type="submit"
+                  disabled={uploadingImage}
                   className="flex-1 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-600"
                 >
                   {tCommon('save')}

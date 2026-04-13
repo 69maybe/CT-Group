@@ -17,8 +17,10 @@ interface AuthStore {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
+  hasHydrated: boolean;
   setAuth: (user: User, accessToken: string, refreshToken?: string) => void;
   updateUser: (user: Partial<User>) => void;
+  setHasHydrated: (value: boolean) => void;
   logout: () => void;
 }
 
@@ -29,6 +31,7 @@ export const useAuthStore = create<AuthStore>()(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      hasHydrated: false,
       
       setAuth: (user, accessToken, refreshToken) => {
         set({
@@ -44,6 +47,10 @@ export const useAuthStore = create<AuthStore>()(
           user: state.user ? { ...state.user, ...updates } : null,
         }));
       },
+
+      setHasHydrated: (value) => {
+        set({ hasHydrated: value });
+      },
       
       logout: () => {
         set({
@@ -56,6 +63,9 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: 'greenlife-auth',
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

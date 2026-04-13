@@ -52,6 +52,10 @@
       "cta": "Explore Now",
       "secondary": "Learn More"
     },
+    "carousel": {
+      "label": "Featured articles",
+      "readMore": "Read more"
+    },
     "businessSectors": "BUSINESS SECTOR",
     "totalSectors": "TOTAL",
     "sectorsCount": "sectors",

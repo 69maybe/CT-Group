@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.greenlife</groupId>
+    <groupId>com.ctgroup</groupId>
     <artifactId>greenlife-backend</artifactId>
     <version>1.0.0</version>
     <name>CT GROUP API</name>

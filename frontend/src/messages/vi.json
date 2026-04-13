@@ -52,6 +52,10 @@
       "cta": "Khám phá ngay",
       "secondary": "Tìm hiểu thêm"
     },
+    "carousel": {
+      "label": "Bài viết nổi bật",
+      "readMore": "Đọc thêm"
+    },
     "businessSectors": "LĨNH VỰC KINH DOANH",
     "totalSectors": "TỔNG CỘNG",
     "sectorsCount": "lĩnh vực",

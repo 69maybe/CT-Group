@@ -1,31 +1,131 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Camera, Save } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { api } from '@/lib/api';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 export default function AccountPage() {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, accessToken, updateUser, hasHydrated } = useAuthStore();
   const params = useParams();
   const locale = params.locale as string;
   const router = useRouter();
   const t = useTranslations('account');
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    avatar: '',
+  });
 
   useEffect(() => {
+    if (!hasHydrated) return;
     if (!isAuthenticated) {
       router.push(`/${locale}/login`);
     }
-  }, [isAuthenticated, locale, router]);
+  }, [hasHydrated, isAuthenticated, locale, router]);
+
+  useEffect(() => {
+    if (!hasHydrated || !isAuthenticated || !accessToken) return;
+    let cancelled = false;
+    setLoadingProfile(true);
+    api
+      .getMe(accessToken)
+      .then((me) => {
+        if (cancelled || !me) return;
+        updateUser({
+          name: me.name,
+          email: me.email,
+          phone: me.phone,
+          address: me.address,
+          avatar: me.avatar,
+          roles: me.roles || [],
+          permissions: me.permissions || [],
+        });
+      })
+      .catch(() => {
+        // Keep local user data if refresh fails
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingProfile(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [hasHydrated, isAuthenticated, accessToken, updateUser]);
+
+  useEffect(() => {
+    if (!user) return;
+    setFormData({
+      name: user.name || '',
+      phone: user.phone || '',
+      address: user.address || '',
+      avatar: user.avatar || '',
+    });
+  }, [user]);
 
   const handleLogout = () => {
     logout();
     router.push(`/${locale}`);
   };
 
-  if (!isAuthenticated || !user) {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !accessToken) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error(locale === 'vi' ? 'Vui lòng chọn file ảnh hợp lệ' : 'Please choose a valid image file');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const res = await api.uploadMyAvatar(accessToken, file);
+      setFormData((prev) => ({ ...prev, avatar: res.path || res.url || '' }));
+      toast.success(locale === 'vi' ? 'Tải ảnh đại diện thành công' : 'Avatar uploaded successfully');
+    } catch (error: any) {
+      toast.error(error.message || (locale === 'vi' ? 'Tải ảnh thất bại' : 'Upload failed'));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!accessToken || !user) return;
+    if (!formData.name.trim()) {
+      toast.error(locale === 'vi' ? 'Vui lòng nhập họ tên' : 'Please enter your full name');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const updated = await api.updateMe(accessToken, {
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        address: formData.address.trim(),
+        avatar: formData.avatar.trim(),
+      });
+      updateUser({
+        name: updated.name,
+        phone: updated.phone,
+        address: updated.address,
+        avatar: updated.avatar,
+      });
+      toast.success(locale === 'vi' ? 'Đã cập nhật hồ sơ' : 'Profile updated');
+    } catch (error: any) {
+      toast.error(error.message || (locale === 'vi' ? 'Cập nhật thất bại' : 'Update failed'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!hasHydrated || !isAuthenticated || !user) {
     return null;
   }
 
@@ -35,11 +135,27 @@ export default function AccountPage() {
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
-                <User className="w-8 h-8 text-primary-600" />
+              <div className="relative">
+                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center overflow-hidden">
+                  {formData.avatar ? (
+                    <img src={formData.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-8 h-8 text-primary-600" />
+                  )}
+                </div>
+                <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center cursor-pointer hover:bg-gray-50">
+                  <Camera className="w-4 h-4 text-gray-600" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                    disabled={uploading}
+                  />
+                </label>
               </div>
               <div>
-                <h1 className="font-semibold text-xl">{user.name}</h1>
+                <h1 className="font-semibold text-xl">{formData.name || user.name}</h1>
                 <p className="text-sm text-gray-500">{user.email}</p>
               </div>
             </div>
@@ -61,7 +177,11 @@ export default function AccountPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('name')}</label>
-                <p className="px-4 py-3 bg-gray-50 rounded-lg">{user.name}</p>
+                <input
+                  value={formData.name}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
@@ -69,12 +189,36 @@ export default function AccountPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('phone')}</label>
-                <p className="px-4 py-3 bg-gray-50 rounded-lg">{user.phone || t('notSet')}</p>
+                <input
+                  value={formData.phone}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder={locale === 'vi' ? 'Nhập số điện thoại' : 'Enter your phone number'}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('address')}</label>
-                <p className="px-4 py-3 bg-gray-50 rounded-lg">{user.address || t('notSet')}</p>
+                <input
+                  value={formData.address}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder={locale === 'vi' ? 'Nhập địa chỉ' : 'Enter your address'}
+                />
               </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleSaveProfile}
+                disabled={saving || uploading || loadingProfile}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-600 disabled:opacity-60"
+              >
+                <Save className="w-4 h-4" />
+                {saving
+                  ? (locale === 'vi' ? 'Đang lưu...' : 'Saving...')
+                  : (locale === 'vi' ? 'Lưu hồ sơ' : 'Save profile')}
+              </button>
             </div>
 
             <div className="pt-4">

@@ -57,7 +57,7 @@ export default function BusinessSectors() {
           title: s.title,
           subTitle: s.subtitle || '',
           image: s.imagePath,
-          href: s.detailHref.startsWith('/') ? s.detailHref : `/${s.detailHref}`,
+          href: `/business-sector/${s.slug}`,
           color: COLORS[(s.sortOrder - 1) % COLORS.length],
         }));
         setSectors(mapped);

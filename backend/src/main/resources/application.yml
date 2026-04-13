@@ -34,5 +34,5 @@ cors:
 
 logging:
   level:
-    com.greenlife: DEBUG
+    com.ctgroup: DEBUG
     org.springframework.security: INFO

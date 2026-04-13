@@ -22,6 +22,25 @@ interface FetchOptions extends RequestInit {
 }
 
 class ApiClient {
+  private normalizeUploadPath(value?: string | null): string | undefined {
+    if (!value) return value ?? undefined;
+    const raw = String(value).trim();
+    if (!raw) return undefined;
+    if (raw.startsWith('/uploads/')) return raw;
+    if (raw.startsWith('uploads/')) return `/${raw}`;
+
+    const match = raw.match(/^https?:\/\/[^/]+(\/uploads\/.*)$/i);
+    if (match?.[1]) return match[1];
+    return raw;
+  }
+
+  private normalizeArticleImage<T extends { image?: string }>(article: T): T {
+    return {
+      ...article,
+      image: this.normalizeUploadPath(article.image),
+    };
+  }
+
   private async fetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
     const { token, ...fetchOptions } = options;
     const baseUrl = resolveApiBaseUrl();
@@ -99,6 +118,40 @@ class ApiClient {
 
   async getMe(token: string) {
     return this.fetch<any>('/auth/me', { token });
+  }
+
+  async updateMe(token: string, data: { name?: string; phone?: string; address?: string; avatar?: string }) {
+    return this.fetch<any>('/auth/me', {
+      method: 'PUT',
+      token,
+      body: JSON.stringify(data),
+    });
+  }
+
+  async uploadMyAvatar(token: string, file: File) {
+    const baseUrl = resolveApiBaseUrl();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${baseUrl}/auth/upload-avatar`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const msg = (json as any)?.message || (json as any)?.error || 'Upload failed';
+      throw new Error(msg);
+    }
+
+    if (json && typeof json === 'object' && 'success' in json && (json as any).data) {
+      return (json as any).data as { url: string; path: string };
+    }
+
+    return json as { url: string; path: string };
   }
 
   async logout(token: string) {
@@ -179,7 +232,12 @@ class ApiClient {
     }
     const response = await this.fetch<{ items: any[]; total: number }>(`/articles?${searchParams.toString()}`);
     if (response.items && response.total !== undefined) {
-      return response;
+      return {
+        ...response,
+        items: Array.isArray(response.items)
+          ? response.items.map((article: any) => this.normalizeArticleImage(article))
+          : [],
+      };
     }
     return { items: [], total: 0 };
   }
@@ -188,12 +246,14 @@ class ApiClient {
     const searchParams = new URLSearchParams();
     if (locale) searchParams.append('locale', locale);
     const queryString = searchParams.toString();
-    return this.fetch<any>(`/articles/${slug}${queryString ? `?${queryString}` : ''}`);
+    const data = await this.fetch<any>(`/articles/${slug}${queryString ? `?${queryString}` : ''}`);
+    return this.normalizeArticleImage(data);
   }
 
   async getFeaturedArticles(locale?: string) {
     const q = locale ? `?locale=${encodeURIComponent(locale)}` : '';
-    return this.fetch<any[]>(`/articles/featured${q}`);
+    const data = await this.fetch<any[]>(`/articles/featured${q}`);
+    return Array.isArray(data) ? data.map((article: any) => this.normalizeArticleImage(article)) : [];
   }
 
   // CT GROUP — public
@@ -212,6 +272,8 @@ class ApiClient {
 
   async getBusinessSectors(locale?: string) {
     const q = locale ? `?locale=${encodeURIComponent(locale)}` : '';
+    const sep = q ? '&' : '?';
+    const noCache = `${sep}_ts=${Date.now()}`;
     return this.fetch<
       Array<{
         id: string;
@@ -223,11 +285,13 @@ class ApiClient {
         description: string;
         detailHref: string;
       }>
-    >(`/public/business-sectors${q}`);
+    >(`/public/business-sectors${q}${noCache}`);
   }
 
   async getBusinessSectorBySlug(slug: string, locale?: string) {
     const q = locale ? `?locale=${encodeURIComponent(locale)}` : '';
+    const sep = q ? '&' : '?';
+    const noCache = `${sep}_ts=${Date.now()}`;
     return this.fetch<{
       id: string;
       slug: string;
@@ -237,7 +301,35 @@ class ApiClient {
       subtitle: string;
       description: string;
       detailHref: string;
-    }>(`/public/business-sectors/${encodeURIComponent(slug)}${q}`);
+    }>(`/public/business-sectors/${encodeURIComponent(slug)}${q}${noCache}`);
+  }
+
+  async getAdminBusinessSectors(token: string) {
+    const r = await this.fetch<any[]>('/admin/business-sectors', { token });
+    return Array.isArray(r) ? r : [];
+  }
+
+  async createBusinessSector(token: string, data: any) {
+    return this.fetch<any>('/admin/business-sectors', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateBusinessSector(token: string, id: string, data: any) {
+    return this.fetch<any>(`/admin/business-sectors/${id}`, {
+      method: 'PUT',
+      token,
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteBusinessSector(token: string, id: string) {
+    return this.fetch<any>(`/admin/business-sectors/${id}`, {
+      method: 'DELETE',
+      token,
+    });
   }
 
   // Admin APIs
@@ -311,7 +403,17 @@ class ApiClient {
       if (params.limit !== undefined) searchParams.append('limit', String(params.limit));
       if (params.includeUnpublished) searchParams.append('includeUnpublished', 'true');
     }
-    return this.fetch<any>(`/admin/articles?${searchParams.toString()}`, { token });
+    const response = await this.fetch<any>(`/admin/articles?${searchParams.toString()}`, { token });
+    if (Array.isArray(response)) {
+      return response.map((article: any) => this.normalizeArticleImage(article));
+    }
+    if (response?.items && Array.isArray(response.items)) {
+      return {
+        ...response,
+        items: response.items.map((article: any) => this.normalizeArticleImage(article)),
+      };
+    }
+    return response;
   }
 
   async createArticle(token: string, data: any) {
@@ -335,6 +437,32 @@ class ApiClient {
       method: 'DELETE',
       token,
     });
+  }
+
+  async uploadAdminImage(token: string, file: File) {
+    const baseUrl = resolveApiBaseUrl();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${baseUrl}/admin/uploads/image`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const json = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const msg = (json as any)?.message || (json as any)?.error || 'Upload failed';
+      throw new Error(msg);
+    }
+
+    if (json && typeof json === 'object' && 'success' in json && (json as any).data) {
+      return (json as any).data as { url: string; path: string };
+    }
+
+    return json as { url: string; path: string };
   }
 
   // Orders Admin

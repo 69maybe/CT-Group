@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
 import Image from 'next/image';
+import { useAuthStore } from '@/store/authStore';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,6 +13,7 @@ export default function Header() {
   const params = useParams();
   const locale = params.locale as string;
   const router = useRouter();
+  const { user, isAuthenticated } = useAuthStore();
 
   const navLinks = [
     { href: `/${locale}`, label: locale === 'vi' ? 'Trang chủ' : 'Home' },
@@ -114,6 +116,23 @@ export default function Header() {
                 <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-ct-blue transition-all group-hover:w-full"></span>
               </Link>
             ))}
+            {isAuthenticated && user ? (
+              <Link
+                href={`/${locale}/account`}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors max-w-[220px]"
+                title={locale === 'vi' ? 'Mở hồ sơ tài khoản' : 'Open profile'}
+              >
+                <User className="w-4 h-4 shrink-0" />
+                <span className="truncate font-medium">{user.name}</span>
+              </Link>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                className="inline-flex items-center px-3 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                {locale === 'vi' ? 'Đăng nhập' : 'Login'}
+              </Link>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -140,6 +159,24 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            {isAuthenticated && user ? (
+              <Link
+                href={`/${locale}/account`}
+                className="flex items-center gap-2 py-2 text-primary-700 font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User className="w-4 h-4" />
+                {user.name}
+              </Link>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                className="block py-2 text-gray-700 hover:text-ct-blue font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {locale === 'vi' ? 'Đăng nhập' : 'Login'}
+              </Link>
+            )}
             <div className="flex gap-4 pt-4 border-t">
               <button
                 onClick={() => handleLanguageChange('vi')}

@@ -4,10 +4,56 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BUSINESS_SECTOR_DETAILS as businessSectors } from '@/data/business-sectors';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
+
+const COLORS = [
+  '#1b86c8', '#e82429', '#28a745', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c',
+  '#6610f2', '#17a2b8', '#28a745', '#007bff', '#6c757d', '#343a40', '#dc3545', '#ffc107',
+];
 
 export default function BusinessSectorPage() {
   const params = useParams();
   const locale = params.locale as string;
+  const [sectors, setSectors] = useState(() =>
+    businessSectors.map((sector, index) => ({
+      id: sector.id,
+      number: sector.number || String(index + 1).padStart(2, '0'),
+      title: sector.title,
+      subtitle: sector.subTitle,
+      description: locale === 'vi' ? sector.description.vi : sector.description.en,
+      image: sector.image,
+      href: sector.href,
+      color: sector.color || COLORS[index % COLORS.length],
+    }))
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getBusinessSectors(locale)
+      .then((list) => {
+        if (cancelled || !Array.isArray(list) || list.length === 0) return;
+        setSectors(
+          list.map((s) => ({
+            id: s.slug,
+            number: String(s.sortOrder).padStart(2, '0'),
+            title: s.title,
+            subtitle: s.subtitle || '',
+            description: s.description || '',
+            image: s.imagePath,
+            href: `/business-sector/${s.slug}`,
+            color: COLORS[(s.sortOrder - 1) % COLORS.length],
+          }))
+        );
+      })
+      .catch(() => {
+        // keep fallback
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
 
   return (
     <div>
@@ -32,7 +78,7 @@ export default function BusinessSectorPage() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="space-y-8">
-            {businessSectors.map((sector) => (
+            {sectors.map((sector) => (
               <div
                 key={sector.id}
                 className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
@@ -56,9 +102,9 @@ export default function BusinessSectorPage() {
                     <h3 className="text-2xl font-bold mb-2" style={{ color: sector.color }}>
                       {sector.title}
                     </h3>
-                    <p className="text-gray-500 mb-4">{sector.subTitle}</p>
+                    <p className="text-gray-500 mb-4">{sector.subtitle}</p>
                     <p className="text-gray-600 mb-4">
-                      {locale === 'vi' ? sector.description.vi : sector.description.en}
+                      {sector.description}
                     </p>
                     <Link
                       href={`/${locale}${sector.href}`}

@@ -28,9 +28,9 @@ async function proxy(req: NextRequest, pathSegments: string[]) {
   const auth = req.headers.get('authorization');
   if (auth) headers.set('Authorization', auth);
 
-  let body: string | undefined;
+  let body: BodyInit | undefined;
   if (!['GET', 'HEAD'].includes(req.method)) {
-    body = await req.text();
+    body = await req.arrayBuffer();
   }
 
   try {

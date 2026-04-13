@@ -4,15 +4,39 @@ import { useParams } from 'next/navigation';
 import HeroSlider from '@/components/HeroSlider';
 import BusinessSectors from '@/components/BusinessSectors';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
+import ArticleCarousel from '@/components/ArticleCarousel';
 
 export default function HomePage() {
   const params = useParams();
   const locale = params.locale as string;
+  const [featuredArticles, setFeaturedArticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getFeaturedArticles(locale)
+      .then((items) => {
+        if (!cancelled) {
+          setFeaturedArticles(Array.isArray(items) ? items : []);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setFeaturedArticles([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
 
   return (
     <div>
       {/* Hero Slider */}
       <HeroSlider />
+
+      {/* Featured Articles Carousel */}
+      {featuredArticles.length > 0 && <ArticleCarousel articles={featuredArticles} />}
 
       {/* Business Sectors */}
       <BusinessSectors />
