@@ -17,7 +17,7 @@ function activeAdminMenuId(pathname: string | null, locale: string): string {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [contentOpen, setContentOpen] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string>('');
@@ -46,6 +46,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+    const syncSidebar = (event: MediaQueryListEvent | MediaQueryList) => {
+      setSidebarOpen(event.matches);
+    };
+
+    syncSidebar(mediaQuery);
+    mediaQuery.addEventListener('change', syncSidebar);
+
+    return () => {
+      mediaQuery.removeEventListener('change', syncSidebar);
+    };
+  }, [mounted]);
 
   useEffect(() => {
     if (isContentActive) {
@@ -120,31 +136,47 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">GL</span>
               </div>
-              <span className="font-bold text-lg">{t('admin')}</span>
+              <span className="hidden sm:inline font-bold text-lg">{t('admin')}</span>
             </Link>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link
               href={`/${locale}`}
               target="_blank"
-              className="text-sm text-gray-500 hover:text-primary-600"
+              className="hidden sm:inline text-sm text-gray-500 hover:text-primary-600"
             >
               {locale === 'vi' ? 'Xem website' : 'View Website'}
             </Link>
-            <div className="text-sm">
-              <span className="font-medium">{user.name}</span>
-              <span className="text-gray-500 ml-2">{user.roles?.join(', ')}</span>
+            <div className="text-sm text-right">
+              <span className="font-medium block">{user.name}</span>
+              <span className="hidden md:inline text-gray-500">{user.roles?.join(', ')}</span>
             </div>
           </div>
         </div>
       </header>
 
       <div className="flex">
+        {sidebarOpen && (
+          <button
+            type="button"
+            aria-label="Close sidebar"
+            className="fixed inset-0 top-[60px] bg-black/30 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <aside className={`bg-white shadow-sm transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'}`}>
+        <aside
+          className={`bg-white shadow-sm transition-all duration-300 fixed left-0 top-[60px] h-[calc(100vh-60px)] z-50 transform lg:static lg:top-0 lg:h-auto lg:transform-none lg:z-auto ${
+            sidebarOpen
+              ? 'w-64 translate-x-0 lg:w-64'
+              : 'w-64 -translate-x-full lg:w-0'
+          } lg:overflow-hidden`}
+        >
           <nav className="p-4 space-y-1">
             <Link
               href={`/${locale}/admin`}
+              onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                 activeMenu === 'dashboard'
                   ? 'bg-primary-50 text-primary-600 font-medium'
@@ -174,6 +206,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <Link
                     key={item.id}
                     href={`/${locale}/admin${item.href}`}
+                    onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
                     className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm ${
                       pathname === `/${locale}/admin${item.href}`
                         ? 'bg-primary-50 text-primary-600 font-medium'
@@ -191,6 +224,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.id}
                 href={`/${locale}/admin${item.href}`}
+                onClick={() => window.innerWidth < 1024 && setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   activeMenu === item.id
                     ? 'bg-primary-50 text-primary-600 font-medium'
@@ -205,7 +239,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6">
           {children}
         </main>
       </div>
