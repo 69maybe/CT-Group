@@ -122,8 +122,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-gray-100">
       {/* Top Header */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-3 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 hover:bg-gray-100 rounded-lg"
@@ -132,14 +132,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <Link href={`/${locale}`} className="flex items-center gap-2">
+            <Link href={`/${locale}`} className="flex items-center gap-2 min-w-0">
               <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">GL</span>
               </div>
               <span className="hidden sm:inline font-bold text-lg">{t('admin')}</span>
             </Link>
           </div>
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <Link
               href={`/${locale}`}
               target="_blank"
@@ -147,8 +147,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             >
               {locale === 'vi' ? 'Xem website' : 'View Website'}
             </Link>
-            <div className="text-sm text-right">
-              <span className="font-medium block">{user.name}</span>
+            <div className="text-sm text-right min-w-0">
+              <span className="font-medium block max-w-[140px] sm:max-w-[220px] truncate">{user.name}</span>
               <span className="hidden md:inline text-gray-500">{user.roles?.join(', ')}</span>
             </div>
           </div>

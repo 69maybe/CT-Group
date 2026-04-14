@@ -166,45 +166,94 @@ export default function AdminSectorsPage() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px]">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">Slug</th>
-              <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">{locale === 'vi' ? 'Tiêu đề' : 'Title'}</th>
-              <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">Sort</th>
-              <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">{locale === 'vi' ? 'Trạng thái' : 'Status'}</th>
-              <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">{locale === 'vi' ? 'Thao tác' : 'Actions'}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {items.map((item) => (
-              <tr key={item.id}>
-                <td className="px-4 py-3 text-sm">{item.slug}</td>
-                <td className="px-4 py-3 text-sm">
-                  <p className="font-medium">{item.titleVi}</p>
-                  <p className="text-gray-500">{item.titleEn}</p>
-                </td>
-                <td className="px-4 py-3 text-sm">{item.sortOrder}</td>
-                <td className="px-4 py-3 text-sm">
+        {/* Mobile cards */}
+        <div className="md:hidden divide-y divide-gray-100">
+          {items.length === 0 ? (
+            <div className="px-4 py-8 text-sm text-gray-500 text-center">
+              {locale === 'vi' ? 'Chưa có lĩnh vực nào' : 'No sectors found'}
+            </div>
+          ) : (
+            items.map((item) => (
+              <div key={item.id} className="p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-16 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                    {item.imagePath ? (
+                      <img src={item.imagePath} alt={item.titleVi || item.titleEn} className="w-full h-full object-cover" />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">{item.titleVi}</p>
+                    <p className="text-xs text-gray-500 truncate">{item.titleEn}</p>
+                    <p className="text-xs text-gray-400 mt-1 break-all">/{item.slug}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Sort: {item.sortOrder}</span>
                   <span className={`px-2 py-1 rounded text-xs ${item.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                     {item.active ? (locale === 'vi' ? 'Hiển thị' : 'Active') : (locale === 'vi' ? 'Ẩn' : 'Inactive')}
                   </span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => openEdit(item)} className="p-2 hover:bg-gray-100 rounded">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleDelete(item)} className="p-2 hover:bg-gray-100 rounded text-red-600">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => openEdit(item)} className="flex-1 py-2 px-3 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">
+                    {locale === 'vi' ? 'Sửa' : 'Edit'}
+                  </button>
+                  <button onClick={() => handleDelete(item)} className="flex-1 py-2 px-3 border border-red-200 text-red-600 rounded-lg text-sm hover:bg-red-50">
+                    {locale === 'vi' ? 'Xóa' : 'Delete'}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[760px]">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">Slug</th>
+                <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">{locale === 'vi' ? 'Tiêu đề' : 'Title'}</th>
+                <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">Sort</th>
+                <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">{locale === 'vi' ? 'Trạng thái' : 'Status'}</th>
+                <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">{locale === 'vi' ? 'Thao tác' : 'Actions'}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {items.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-sm text-gray-500 text-center">
+                    {locale === 'vi' ? 'Chưa có lĩnh vực nào' : 'No sectors found'}
+                  </td>
+                </tr>
+              ) : (
+                items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-4 py-3 text-sm">{item.slug}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <p className="font-medium">{item.titleVi}</p>
+                      <p className="text-gray-500">{item.titleEn}</p>
+                    </td>
+                    <td className="px-4 py-3 text-sm">{item.sortOrder}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <span className={`px-2 py-1 rounded text-xs ${item.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {item.active ? (locale === 'vi' ? 'Hiển thị' : 'Active') : (locale === 'vi' ? 'Ẩn' : 'Inactive')}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => openEdit(item)} className="p-2 hover:bg-gray-100 rounded">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(item)} className="p-2 hover:bg-gray-100 rounded text-red-600">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -216,8 +265,14 @@ export default function AdminSectorsPage() {
             </div>
             <form onSubmit={handleSave} className="p-4 sm:p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input required placeholder="slug" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="px-4 py-2 border rounded-lg" />
-                <input required placeholder="sortOrder" type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })} className="px-4 py-2 border rounded-lg" />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                  <input required placeholder="slug" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                  <input required placeholder="sortOrder" type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })} className="w-full px-4 py-2 border rounded-lg" />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -257,16 +312,34 @@ export default function AdminSectorsPage() {
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input required placeholder="titleVi" value={form.titleVi} onChange={(e) => setForm({ ...form, titleVi: e.target.value })} className="px-4 py-2 border rounded-lg" />
-                <input required placeholder="titleEn" value={form.titleEn} onChange={(e) => setForm({ ...form, titleEn: e.target.value })} className="px-4 py-2 border rounded-lg" />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title (VI)</label>
+                  <input required placeholder="titleVi" value={form.titleVi} onChange={(e) => setForm({ ...form, titleVi: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title (EN)</label>
+                  <input required placeholder="titleEn" value={form.titleEn} onChange={(e) => setForm({ ...form, titleEn: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input placeholder="subtitleVi" value={form.subtitleVi || ''} onChange={(e) => setForm({ ...form, subtitleVi: e.target.value })} className="px-4 py-2 border rounded-lg" />
-                <input placeholder="subtitleEn" value={form.subtitleEn || ''} onChange={(e) => setForm({ ...form, subtitleEn: e.target.value })} className="px-4 py-2 border rounded-lg" />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle (VI)</label>
+                  <input placeholder="subtitleVi" value={form.subtitleVi || ''} onChange={(e) => setForm({ ...form, subtitleVi: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle (EN)</label>
+                  <input placeholder="subtitleEn" value={form.subtitleEn || ''} onChange={(e) => setForm({ ...form, subtitleEn: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <textarea placeholder="descriptionVi" value={form.descriptionVi || ''} onChange={(e) => setForm({ ...form, descriptionVi: e.target.value })} className="px-4 py-2 border rounded-lg" rows={3} />
-                <textarea placeholder="descriptionEn" value={form.descriptionEn || ''} onChange={(e) => setForm({ ...form, descriptionEn: e.target.value })} className="px-4 py-2 border rounded-lg" rows={3} />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description (VI)</label>
+                  <textarea placeholder="descriptionVi" value={form.descriptionVi || ''} onChange={(e) => setForm({ ...form, descriptionVi: e.target.value })} className="w-full px-4 py-2 border rounded-lg" rows={3} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description (EN)</label>
+                  <textarea placeholder="descriptionEn" value={form.descriptionEn || ''} onChange={(e) => setForm({ ...form, descriptionEn: e.target.value })} className="w-full px-4 py-2 border rounded-lg" rows={3} />
+                </div>
               </div>
               <label className="inline-flex items-center gap-2">
                 <input type="checkbox" checked={!!form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
