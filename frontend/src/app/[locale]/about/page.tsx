@@ -47,20 +47,20 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-primary-100 rounded-2xl p-8 text-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-primary-100 rounded-2xl p-6 sm:p-8 text-center">
                 <div className="text-4xl font-bold text-primary-600 mb-2">100%</div>
                 <p className="text-gray-600">{locale === 'vi' ? 'Nguyên liệu tươi' : 'Fresh Ingredients'}</p>
               </div>
-              <div className="bg-orange-100 rounded-2xl p-8 text-center">
+              <div className="bg-orange-100 rounded-2xl p-6 sm:p-8 text-center">
                 <div className="text-4xl font-bold text-orange-600 mb-2">5000+</div>
                 <p className="text-gray-600">{t('customers')}</p>
               </div>
-              <div className="bg-green-100 rounded-2xl p-8 text-center">
+              <div className="bg-green-100 rounded-2xl p-6 sm:p-8 text-center">
                 <div className="text-4xl font-bold text-green-600 mb-2">30 {locale === 'vi' ? 'phút' : 'min'}</div>
                 <p className="text-gray-600">{t('delivery')}</p>
               </div>
-              <div className="bg-purple-100 rounded-2xl p-8 text-center">
+              <div className="bg-purple-100 rounded-2xl p-6 sm:p-8 text-center">
                 <div className="text-4xl font-bold text-purple-600 mb-2">50+</div>
                 <p className="text-gray-600">{locale === 'vi' ? 'Món ăn' : 'Dishes'}</p>
               </div>

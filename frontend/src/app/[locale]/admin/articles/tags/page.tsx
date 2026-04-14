@@ -176,9 +176,9 @@ export default function AdminArticleTagsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             {locale === 'vi' ? 'Quản lý tags & thuộc tính bài viết' : 'Manage article tags & metadata'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -189,14 +189,14 @@ export default function AdminArticleTagsPage() {
         </div>
         <Link
           href={`/${locale}/admin/articles`}
-          className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+          className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 w-full sm:w-auto text-center"
         >
           {locale === 'vi' ? 'Quay lại bài viết' : 'Back to articles'}
         </Link>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
           <h2 className="text-lg font-semibold mb-4">{locale === 'vi' ? 'Danh sách tags' : 'Tag list'}</h2>
           {tagStats.length === 0 ? (
             <p className="text-sm text-gray-500">{locale === 'vi' ? 'Chưa có tags' : 'No tags yet'}</p>
@@ -224,7 +224,7 @@ export default function AdminArticleTagsPage() {
           )}
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 space-y-4">
           <h2 className="text-lg font-semibold">{locale === 'vi' ? 'Chỉnh thuộc tính bài viết' : 'Edit article metadata'}</h2>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -246,7 +246,7 @@ export default function AdminArticleTagsPage() {
 
           {selectedArticle ? (
             <>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
                   <input
@@ -300,7 +300,7 @@ export default function AdminArticleTagsPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
                 <label className="inline-flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"

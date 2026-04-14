@@ -218,11 +218,12 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">{t('manageUsers')}</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('manageUsers')}</h1>
 
       {/* Users Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[900px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{locale === 'vi' ? 'Người dùng' : 'User'}</th>
@@ -304,13 +305,14 @@ export default function AdminUsers() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Edit User Modal */}
       {editingUser && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b sticky top-0 bg-white">
+            <div className="p-4 sm:p-6 border-b sticky top-0 bg-white">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold">{locale === 'vi' ? 'Chỉnh sửa người dùng' : 'Edit user'}</h2>
@@ -319,8 +321,8 @@ export default function AdminUsers() {
                 <button onClick={() => setEditingUser(null)} className="p-2 hover:bg-gray-100 rounded-lg">✕</button>
               </div>
             </div>
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 sm:p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Họ và tên' : 'Full name'}</label>
                   <input
@@ -340,7 +342,7 @@ export default function AdminUsers() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Mật khẩu mới' : 'New password'}</label>
                   <input
@@ -412,8 +414,8 @@ export default function AdminUsers() {
                 <span>{locale === 'vi' ? 'Tài khoản hoạt động' : 'Account is active'}</span>
               </label>
             </div>
-            <div className="p-6 border-t">
-              <div className="flex gap-3">
+            <div className="p-4 sm:p-6 border-t">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setEditingUser(null)}
                   className="flex-1 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
@@ -437,7 +439,7 @@ export default function AdminUsers() {
       {roleUser && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full">
-            <div className="p-6 border-b">
+            <div className="p-4 sm:p-6 border-b">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold">{locale === 'vi' ? 'Phân vai trò' : 'Assign Roles'}</h2>
@@ -446,7 +448,7 @@ export default function AdminUsers() {
                 <button onClick={() => setRoleUser(null)} className="p-2 hover:bg-gray-100 rounded-lg">✕</button>
               </div>
             </div>
-            <div className="p-6 space-y-2">
+            <div className="p-4 sm:p-6 space-y-2">
               {roles.map((role) => (
                 <label
                   key={role.id}
@@ -474,8 +476,8 @@ export default function AdminUsers() {
                 </label>
               ))}
             </div>
-            <div className="p-6 border-t">
-              <div className="flex gap-3">
+            <div className="p-4 sm:p-6 border-t">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setRoleUser(null)}
                   className="flex-1 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"

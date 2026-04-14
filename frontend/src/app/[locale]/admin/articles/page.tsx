@@ -220,18 +220,18 @@ export default function AdminArticles() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{t('manageArticles')}</h1>
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('manageArticles')}</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
           <Link
             href={`/${locale}/admin/articles/tags`}
-            className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+            className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-center"
           >
             {locale === 'vi' ? 'Tags & Thuộc tính' : 'Tags & Metadata'}
           </Link>
           <button
             onClick={() => { resetForm(); setEditingArticle(null); setShowForm(true); }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600"
           >
             <Plus className="w-5 h-5" />
             {t('addArticle')}
@@ -253,7 +253,8 @@ export default function AdminArticles() {
 
       {/* Articles Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[920px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{locale === 'vi' ? 'Hình ảnh' : 'Image'}</th>
@@ -331,19 +332,20 @@ export default function AdminArticles() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Article Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b sticky top-0 bg-white">
+            <div className="p-4 sm:p-6 border-b sticky top-0 bg-white">
               <h2 className="text-xl font-bold">
                 {editingArticle ? tCommon('edit') : tCommon('create')} {locale === 'vi' ? 'bài viết' : 'article'}
               </h2>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Tiêu đề (VI)' : 'Title (VI)'}</label>
                   <input
@@ -365,7 +367,7 @@ export default function AdminArticles() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{locale === 'vi' ? 'Mô tả ngắn (VI)' : 'Short Description (VI)'}</label>
                   <textarea
@@ -414,7 +416,7 @@ export default function AdminArticles() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">{locale === 'vi' ? 'Hình ảnh' : 'Image'}</label>
                   <label className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
@@ -493,7 +495,7 @@ export default function AdminArticles() {
                 )}
               </div>
 
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -514,7 +516,7 @@ export default function AdminArticles() {
                 </label>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}

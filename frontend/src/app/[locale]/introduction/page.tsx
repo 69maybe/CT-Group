@@ -69,7 +69,7 @@ export default function IntroductionPage() {
       {/* Stats */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {highlights.map((item, index) => (
               <div key={index} className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-ct-blue mb-2">{item.number}</div>

@@ -157,16 +157,17 @@ export default function AdminSectorsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{locale === 'vi' ? 'Quản lý lĩnh vực' : 'Manage sectors'}</h1>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold">{locale === 'vi' ? 'Quản lý lĩnh vực' : 'Manage sectors'}</h1>
+        <button onClick={openCreate} className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 w-full sm:w-auto">
           <Plus className="w-4 h-4" />
           {locale === 'vi' ? 'Thêm lĩnh vực' : 'Add sector'}
         </button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px]">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase">Slug</th>
@@ -204,16 +205,17 @@ export default function AdminSectorsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
+            <div className="p-4 sm:p-6 border-b">
               <h2 className="text-xl font-bold">{editing ? (locale === 'vi' ? 'Sửa lĩnh vực' : 'Edit sector') : (locale === 'vi' ? 'Thêm lĩnh vực' : 'Add sector')}</h2>
             </div>
-            <form onSubmit={handleSave} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSave} className="p-4 sm:p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input required placeholder="slug" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="px-4 py-2 border rounded-lg" />
                 <input required placeholder="sortOrder" type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })} className="px-4 py-2 border rounded-lg" />
               </div>
@@ -254,15 +256,15 @@ export default function AdminSectorsPage() {
                   className="w-full px-4 py-2 border rounded-lg bg-gray-50 text-gray-600"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input required placeholder="titleVi" value={form.titleVi} onChange={(e) => setForm({ ...form, titleVi: e.target.value })} className="px-4 py-2 border rounded-lg" />
                 <input required placeholder="titleEn" value={form.titleEn} onChange={(e) => setForm({ ...form, titleEn: e.target.value })} className="px-4 py-2 border rounded-lg" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input placeholder="subtitleVi" value={form.subtitleVi || ''} onChange={(e) => setForm({ ...form, subtitleVi: e.target.value })} className="px-4 py-2 border rounded-lg" />
                 <input placeholder="subtitleEn" value={form.subtitleEn || ''} onChange={(e) => setForm({ ...form, subtitleEn: e.target.value })} className="px-4 py-2 border rounded-lg" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <textarea placeholder="descriptionVi" value={form.descriptionVi || ''} onChange={(e) => setForm({ ...form, descriptionVi: e.target.value })} className="px-4 py-2 border rounded-lg" rows={3} />
                 <textarea placeholder="descriptionEn" value={form.descriptionEn || ''} onChange={(e) => setForm({ ...form, descriptionEn: e.target.value })} className="px-4 py-2 border rounded-lg" rows={3} />
               </div>
@@ -270,7 +272,7 @@ export default function AdminSectorsPage() {
                 <input type="checkbox" checked={!!form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
                 <span>{locale === 'vi' ? 'Hiển thị lĩnh vực' : 'Sector active'}</span>
               </label>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-3 border rounded-lg">{locale === 'vi' ? 'Hủy' : 'Cancel'}</button>
                 <button type="submit" disabled={uploadingImage} className="flex-1 py-3 bg-primary text-white rounded-lg disabled:opacity-60">{locale === 'vi' ? 'Lưu' : 'Save'}</button>
               </div>

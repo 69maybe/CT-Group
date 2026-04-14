@@ -73,7 +73,7 @@ export default function HomePage() {
                 </svg>
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition-shadow">
                 <div className="text-4xl font-bold text-ct-blue mb-2">15+</div>
                 <div className="text-gray-600 text-sm">
@@ -138,7 +138,7 @@ export default function HomePage() {
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-12">
             {locale === 'vi' ? 'Hình ảnh nổi bật' : 'Featured Images'}
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div className="relative h-48 rounded-xl overflow-hidden group">
               <img
                 src="/images/ctgroup/CT-Land.jpg"
