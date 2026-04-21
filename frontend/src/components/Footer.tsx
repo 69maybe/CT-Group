@@ -4,28 +4,27 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
+import { Globe } from 'lucide-react';
+import { resolveCompanyRuntime, useSiteSettingsStore } from '@/store/siteSettingsStore';
 
 export default function Footer() {
   const t = useTranslations('footer');
   const params = useParams();
   const locale = params.locale as string;
 
-  const socialLinks = [
-    { href: 'https://www.facebook.com/CTgroupVN', icon: 'facebook.png', label: 'Facebook' },
-    { href: 'http://info@ctgroupvietnam.com', icon: 'email.png', label: 'Email' },
-    { href: 'https://www.instagram.com/ctgroup.vietnam/', icon: 'instagram.png', label: 'Instagram' },
-    { href: 'https://www.linkedin.com/company/t%E1%BA%ADp-%C4%91o%C3%A0n-c.t-group/', icon: 'linkedin.png', label: 'LinkedIn' },
-    { href: 'https://www.pinterest.com/ctgroupvietnam01/_created/', icon: 'pinterest.png', label: 'Pinterest' },
-    { href: 'https://www.tiktok.com/@tapdoanctgroupvn', icon: 'tiktok.png', label: 'TikTok' },
-    { href: 'https://x.com/tapdoanctgroup', icon: 'twitter.png', label: 'Twitter' },
-    { href: 'https://account.viber.com/0911807668/account', icon: 'viber.png', label: 'Viber' },
-    { href: 'https://www.youtube.com/channel/UC-iFhtlJaIhlyp_GGFvpRMg', icon: 'youtube.png', label: 'YouTube' },
-    { href: 'https://zalo.me/1371516702089438441', icon: 'zalo.png', label: 'Zalo' },
-  ];
+  const settings = useSiteSettingsStore((s) => s.settings);
+  const { company, socialLinks: socials } = resolveCompanyRuntime(settings);
+
+  const socialLinks = socials;
 
   const businessLinks = {
     highTech: [
       { label: locale === 'vi' ? 'Máy bay không người lái' : 'Unmanned Aerial Vehicles', href: `/${locale}/business-sector/uav` },
+      { label: locale === 'vi' ? 'Drone (UAV)' : 'Drone (UAV)', href: `/${locale}/business-sector/drone-uav` },
+      { label: locale === 'vi' ? 'IoT' : 'IoT', href: `/${locale}/business-sector/iot` },
+      { label: locale === 'vi' ? 'Chatbot AI' : 'Chatbot AI', href: `/${locale}/business-sector/chatbot-ai` },
+      { label: locale === 'vi' ? 'Controller CNC' : 'CNC Controller', href: `/${locale}/business-sector/cnc-controller` },
+      { label: locale === 'vi' ? 'Robot công nghiệp' : 'Industrial Robot', href: `/${locale}/business-sector/industrial-robot` },
       { label: locale === 'vi' ? 'Kinh tế hàng không thấp' : 'Low Altitude Economy', href: `/${locale}/low-altitude-economy` },
       { label: locale === 'vi' ? 'Mô hình số 15 tầng' : '15-Layer Digital Twin', href: `/${locale}/business-sector/digital-twin` },
       { label: locale === 'vi' ? 'Nhà Robot' : 'Robotic House', href: `/${locale}/business-sector/robotic` },
@@ -50,8 +49,8 @@ export default function Footer() {
           {/* Logo and Social */}
           <div className="space-y-6">
             <Image
-              src="/images/ctgroup/logo.png"
-              alt="CT GROUP VIETNAM"
+              src={company.logoPath}
+              alt={company.name}
               width={150}
               height={75}
               className="h-16 w-auto"
@@ -66,13 +65,17 @@ export default function Footer() {
                   className="hover:opacity-80 transition-opacity"
                   title={social.label}
                 >
-                  <Image
-                    src={`/images/ctgroup/${social.icon}`}
-                    alt={social.label}
-                    width={28}
-                    height={28}
-                    className="w-7 h-7"
-                  />
+                  {social.icon === 'website' ? (
+                    <Globe className="w-7 h-7" />
+                  ) : (
+                    <Image
+                      src={`/images/ctgroup/${social.icon.replace(/\.png$/i, '')}.png`}
+                      alt={social.label}
+                      width={28}
+                      height={28}
+                      className="w-7 h-7"
+                    />
+                  )}
                 </a>
               ))}
             </div>
@@ -117,28 +120,25 @@ export default function Footer() {
                   <path d="M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z"/>
                 </svg>
                 <div className="text-gray-400">
-                  <span>(+84) 911 807 668</span>
-                  <br />
-                  <span>(+84) 911 807 667</span>
-                  <br />
-                  <span>(+84 28) 6297 1999</span>
+                  <a href={company.phoneHref} className="hover:text-white transition-colors">
+                    {company.phoneDisplay}
+                  </a>
                 </div>
               </li>
               <li className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-ct-blue flex-shrink-0" fill="currentColor" viewBox="0 0 512 512">
                   <path d="M160 448c-25.6 0-51.2-22.4-64-32-64-44.8-83.2-60.8-96-70.4V480c0 17.67 14.33 32 32 32h256c17.67 0 32-14.33 32-32V345.6c-12.8 9.6-32 25.6-96 70.4-12.8 9.6-38.4 32-64 32z"/>
                 </svg>
-                <span className="text-gray-400">info@ctgroupvietnam.com</span>
+                <a href={company.emailHref} className="text-gray-400 hover:text-white transition-colors">
+                  {company.email}
+                </a>
               </li>
               <li className="flex items-start gap-3">
                 <svg className="w-5 h-5 text-ct-blue flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 384 512">
                   <path d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0z"/>
                 </svg>
                 <span className="text-gray-400 text-sm">
-                  {locale === 'vi' 
-                    ? 'Tòa nhà Léman, 20 Trương Định, Quận 3, TP. Hồ Chí Minh'
-                    : 'Léman Building, 20 Truong Dinh St., District 3, Ho Chi Minh City'
-                  }
+                  {locale === 'vi' ? company.addressVi : company.addressEn}
                 </span>
               </li>
             </ul>

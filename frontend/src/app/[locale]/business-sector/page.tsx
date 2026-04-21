@@ -66,8 +66,8 @@ export default function BusinessSectorPage() {
             </h1>
             <p className="text-xl opacity-90">
               {locale === 'vi'
-                ? '15 lĩnh vực kinh doanh đa dạng từ công nghệ cao đến phát triển bền vững'
-                : '15 diverse business sectors from high technology to sustainable development'
+                ? '20 lĩnh vực kinh doanh đa dạng từ công nghệ cao đến phát triển bền vững'
+                : '20 diverse business sectors from high technology to sustainable development'
               }
             </p>
           </div>

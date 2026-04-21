@@ -8,7 +8,7 @@ const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfa
 
 export const metadata: Metadata = {
   title: 'CT GROUP VIETNAM',
-  description: 'CT GROUP VIETNAM — công nghệ cao, đa lĩnh vực.',
+  description: 'CT GROUP VIETNAM — công nghệ cao, đa lĩnh vực (20 lĩnh vực kinh doanh).',
   icons: {
     icon: '/images/ctgroup/logo.png',
   },

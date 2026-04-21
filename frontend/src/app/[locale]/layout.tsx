@@ -7,13 +7,15 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ToasterProvider } from '@/components/ToasterProvider';
 import DocumentLang from '@/components/DocumentLang';
+import SiteSettingsProvider from '@/components/SiteSettingsProvider';
+import IdleLogout from '@/components/IdleLogout';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'CT GROUP VIETNAM - Công Nghệ Cao',
   description:
-    'CT GROUP VIETNAM - Đổi Mới Công Nghệ, Kiến Tạo Tương Lai. 15 lĩnh vực kinh doanh đa dạng từ Smart City đến AI.',
+    'CT GROUP VIETNAM - Đổi Mới Công Nghệ, Kiến Tạo Tương Lai. 20 lĩnh vực kinh doanh đa dạng từ Smart City đến AI.',
   keywords: 'CT GROUP, Vietnam, technology, smart city, AI, biotech, drone, semiconductor',
   icons: {
     icon: '/images/ctgroup/logo.png',
@@ -39,9 +41,12 @@ export default async function LocaleLayout({
       <DocumentLang />
       <ToasterProvider />
       <NextIntlClientProvider messages={messages}>
-        <Header />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+        <SiteSettingsProvider>
+          <IdleLogout />
+          <Header />
+          <main className="min-h-screen">{children}</main>
+          <Footer />
+        </SiteSettingsProvider>
       </NextIntlClientProvider>
     </>
   );

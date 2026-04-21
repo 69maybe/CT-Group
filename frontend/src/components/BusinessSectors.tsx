@@ -28,6 +28,11 @@ const STATIC_SECTORS = [
   { id: 'autonomous', number: '13', title: 'Autonomous', subTitle: 'Vehicle', image: '/images/ctgroup/KV_Nganh-1.png', href: '/business-sector/autonomous', color: '#343a40' },
   { id: 'ai', number: '14', title: 'Artificial', subTitle: 'Intelligence', image: '/images/ctgroup/KV_Nganh-2.png', href: '/business-sector/ai', color: '#dc3545' },
   { id: 'crypto', number: '15', title: 'Green', subTitle: 'Cryptocurrency', image: '/images/ctgroup/KV_Nganh-3.png', href: '/business-sector/crypto', color: '#ffc107' },
+  { id: 'iot', number: '16', title: 'IoT', subTitle: 'Internet of Things', image: '/images/ctgroup/KV_Nganh-1.png', href: '/business-sector/iot', color: '#1b86c8' },
+  { id: 'chatbot-ai', number: '17', title: 'Chatbot', subTitle: 'AI', image: '/images/ctgroup/KV_Nganh-2.png', href: '/business-sector/chatbot-ai', color: '#dc3545' },
+  { id: 'drone-uav', number: '18', title: 'Drone', subTitle: '(UAV)', image: '/images/ctgroup/KV_Nganh-4.png', href: '/business-sector/drone-uav', color: '#6f42c1' },
+  { id: 'cnc-controller', number: '19', title: 'CNC', subTitle: 'Controller', image: '/images/ctgroup/KV_Nganh-11.png', href: '/business-sector/cnc-controller', color: '#007bff' },
+  { id: 'industrial-robot', number: '20', title: 'Industrial', subTitle: 'Robot', image: '/images/ctgroup/KV_Nganh-7.png', href: '/business-sector/industrial-robot', color: '#e83e8c' },
 ];
 
 type SectorRow = {
@@ -77,8 +82,8 @@ export default function BusinessSectors() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <span className="text-ct-blue font-bold text-5xl">CT</span>
-            <span className="text-ct-red font-bold text-5xl">GROUP</span>
+            <span className="text-ct-blue font-bold text-5xl">SYSMAC</span>
+            <span className="text-ct-red font-bold text-5xl">JSC</span>
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
             {locale === 'vi' ? 'LĨNH VỰC KINH DOANH' : 'BUSINESS SECTOR'}

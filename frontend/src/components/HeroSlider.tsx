@@ -3,35 +3,49 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-const slides = [
-  {
-    image: '/images/ctgroup/BENNER-WEB-02.png',
-    alt: 'CT GROUP VIETNAM',
-  },
-  {
-    image: '/images/ctgroup/CT-Land.jpg',
-    alt: 'CT Land',
-  },
-  {
-    image: '/images/ctgroup/Logiin.jpg',
-    alt: 'CT Innovation',
-  },
-  {
-    image: '/images/ctgroup/Bon-14.jpg',
-    alt: 'CT Business',
-  },
-];
+import { resolveCompanyRuntime, useSiteSettingsStore } from '@/store/siteSettingsStore';
 
 export default function HeroSlider() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const settings = useSiteSettingsStore((s) => s.settings);
+  const { company, bannerImages } = resolveCompanyRuntime(settings);
+
+  const fallbackSlides = [
+    // no default banners; admin-managed only
+  ];
+
+  const images = (bannerImages.length ? bannerImages : [company.bannerPath]).filter(Boolean);
+  const slides = [...images, ...fallbackSlides].map((image) => ({ image, alt: company.name }));
 
   useEffect(() => {
+    if (slides.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
+
+  useEffect(() => {
+    if (slides.length === 0) {
+      setCurrentSlide(0);
+      return;
+    }
+    if (currentSlide >= slides.length) {
+      setCurrentSlide(0);
+    }
+  }, [currentSlide, slides.length]);
+
+  if (slides.length === 0) {
+    return (
+      <section className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden bg-gradient-to-r from-ct-blue to-blue-700">
+        <div className="absolute inset-0 z-20 flex items-center justify-center">
+          <div className="text-center text-white px-4">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">{company.name}</h1>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -70,13 +84,7 @@ export default function HeroSlider() {
       {/* Content */}
       <div className="absolute inset-0 z-20 flex items-center justify-center">
         <div className="text-center text-white px-4">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">
-            <span className="text-ct-blue">CT</span>{' '}
-            <span className="text-ct-red">GROUP</span>
-          </h1>
-          <p className="text-xl md:text-2xl lg:text-3xl font-light">
-            VIETNAM
-          </p>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">{company.name}</h1>
         </div>
       </div>
 

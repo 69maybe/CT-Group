@@ -257,6 +257,87 @@ class ApiClient {
   }
 
   // CT GROUP — public
+  async getPublicSiteSettings() {
+    const sep = '?';
+    const noCache = `${sep}_ts=${Date.now()}`;
+    return this.fetch<{
+      logoPath?: string | null;
+      bannerPath?: string | null;
+      bannerImages?: string[] | null;
+      phone?: string | null;
+      email?: string | null;
+      addressVi?: string | null;
+      addressEn?: string | null;
+      introTitle?: string | null;
+      introSloganVi?: string | null;
+      introSloganEn?: string | null;
+      introDescriptionVi?: string | null;
+      introDescriptionEn?: string | null;
+      introDescription2Vi?: string | null;
+      introDescription2En?: string | null;
+      introDescription3Vi?: string | null;
+      introDescription3En?: string | null;
+      introContentVi?: string | null;
+      introContentEn?: string | null;
+      socialLinks?: Array<{ href: string; icon: string; label: string }> | null;
+    }>(`/public/settings/site${noCache}`);
+  }
+
+  async getAdminSiteSettings(token: string) {
+    return this.fetch<{
+      logoPath?: string | null;
+      bannerPath?: string | null;
+      bannerImages?: string[] | null;
+      phone?: string | null;
+      email?: string | null;
+      addressVi?: string | null;
+      addressEn?: string | null;
+      introTitle?: string | null;
+      introSloganVi?: string | null;
+      introSloganEn?: string | null;
+      introDescriptionVi?: string | null;
+      introDescriptionEn?: string | null;
+      introDescription2Vi?: string | null;
+      introDescription2En?: string | null;
+      introDescription3Vi?: string | null;
+      introDescription3En?: string | null;
+      introContentVi?: string | null;
+      introContentEn?: string | null;
+      socialLinks?: Array<{ href: string; icon: string; label: string }> | null;
+    }>(`/admin/settings/site`, { token });
+  }
+
+  async updateAdminSiteSettings(
+    token: string,
+    data: {
+      logoPath?: string | null;
+      bannerPath?: string | null;
+      bannerImages?: string[] | null;
+      phone?: string | null;
+      email?: string | null;
+      addressVi?: string | null;
+      addressEn?: string | null;
+      introTitle?: string | null;
+      introSloganVi?: string | null;
+      introSloganEn?: string | null;
+      introDescriptionVi?: string | null;
+      introDescriptionEn?: string | null;
+      introDescription2Vi?: string | null;
+      introDescription2En?: string | null;
+      introDescription3Vi?: string | null;
+      introDescription3En?: string | null;
+      introContentVi?: string | null;
+      introContentEn?: string | null;
+      socialLinks?: Array<{ href: string; icon: string; label: string }> | null;
+    }
+  ) {
+    return this.fetch<any>(`/admin/settings/site`, {
+      method: 'PUT',
+      token,
+      body: JSON.stringify(data),
+    });
+  }
+
   async submitContact(data: {
     name: string;
     email: string;

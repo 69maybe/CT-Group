@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Send, Globe } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { ctgroupOfficeOsmEmbedSrc } from '@/lib/ctgroupOfficeMap';
+import { resolveCompanyRuntime, useSiteSettingsStore } from '@/store/siteSettingsStore';
 
 export default function ContactPage() {
   const params = useParams();
   const locale = params.locale as string;
+  const settings = useSiteSettingsStore((s) => s.settings);
+  const { company, socialLinks } = resolveCompanyRuntime(settings);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -111,9 +114,9 @@ export default function ContactPage() {
                       {locale === 'vi' ? 'Điện thoại' : 'Phone'}
                     </h3>
                     <p className="text-gray-600">
-                      (+84) 911 807 668<br />
-                      (+84) 911 807 667<br />
-                      (+84 28) 6297 1999
+                      <a className="hover:underline" href={company.phoneHref}>
+                        {company.phoneDisplay}
+                      </a>
                     </p>
                   </div>
                 </div>
@@ -124,7 +127,11 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                    <p className="text-gray-600">info@ctgroupvietnam.com</p>
+                    <p className="text-gray-600">
+                      <a className="hover:underline" href={company.emailHref}>
+                        {company.email}
+                      </a>
+                    </p>
                   </div>
                 </div>
 
@@ -137,10 +144,7 @@ export default function ContactPage() {
                       {locale === 'vi' ? 'Địa chỉ' : 'Address'}
                     </h3>
                     <p className="text-gray-600">
-                      {locale === 'vi'
-                        ? 'Tòa nhà Léman, 20 Trương Định, Quận 3, TP. Hồ Chí Minh'
-                        : 'Léman Building, 20 Truong Dinh St., District 3, Ho Chi Minh City'
-                      }
+                      {locale === 'vi' ? company.addressVi : company.addressEn}
                     </p>
                   </div>
                 </div>
@@ -169,12 +173,7 @@ export default function ContactPage() {
                   {locale === 'vi' ? 'Kết nối với chúng tôi' : 'Connect with us'}
                 </h3>
                 <div className="flex gap-3">
-                  {[
-                    { icon: 'facebook.png', href: 'https://www.facebook.com/CTgroupVN', label: 'Facebook' },
-                    { icon: 'linkedin.png', href: 'https://www.linkedin.com/company/tập-đoàn-c.t-group/', label: 'LinkedIn' },
-                    { icon: 'youtube.png', href: 'https://www.youtube.com/channel/UC-iFhtlJaIhlyp_GGFvpRMg', label: 'YouTube' },
-                    { icon: 'zalo.png', href: 'https://zalo.me/1371516702089438441', label: 'Zalo' },
-                  ].map((social) => (
+                  {socialLinks.map((social) => (
                     <a
                       key={social.icon}
                       href={social.href}
@@ -183,12 +182,16 @@ export default function ContactPage() {
                       className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors"
                       title={social.label}
                     >
-                      <Image
-                        src={`/images/ctgroup/${social.icon}`}
-                        alt={social.label}
-                        width={24}
-                        height={24}
-                      />
+                      {social.icon === 'website' ? (
+                        <Globe className="w-6 h-6" />
+                      ) : (
+                        <Image
+                          src={`/images/ctgroup/${social.icon.replace(/\.png$/i, '')}.png`}
+                          alt={social.label}
+                          width={24}
+                          height={24}
+                        />
+                      )}
                     </a>
                   ))}
                 </div>
@@ -305,7 +308,7 @@ export default function ContactPage() {
           allowFullScreen
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title="CT GROUP Vietnam — Léman, 20 Truong Dinh, District 3, HCMC"
+          title={`${company.name} — ${company.addressEn}`}
         />
       </section>
     </div>

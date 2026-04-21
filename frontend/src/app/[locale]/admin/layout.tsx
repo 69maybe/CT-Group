@@ -36,12 +36,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   const contentMenuItems = [
-    { id: 'articles', label: t('articles'), icon: FileText, href: '/articles' },
-    { id: 'article-tags', label: locale === 'vi' ? 'Tags & Thuộc tính' : 'Tags & Metadata', icon: FileText, href: '/articles/tags' },
+    { id: 'home-settings', label: locale === 'vi' ? 'Trang chủ' : 'Home', icon: LayoutDashboard, href: '/site-settings?tab=home' },
+    { id: 'about-settings', label: locale === 'vi' ? 'Giới thiệu' : 'About', icon: FileText, href: '/site-settings?tab=about' },
     { id: 'sectors', label: locale === 'vi' ? 'Lĩnh vực' : 'Sectors', icon: Grid3X3, href: '/sectors' },
+    { id: 'articles', label: locale === 'vi' ? 'Bài viết' : 'Articles', icon: FileText, href: '/articles' },
+    { id: 'article-tags', label: locale === 'vi' ? 'Tags & Thuộc tính' : 'Tags & Metadata', icon: FileText, href: '/articles/tags' },
+    { id: 'contact-settings', label: locale === 'vi' ? 'Liên hệ' : 'Contact', icon: Users, href: '/site-settings?tab=contact' },
   ];
 
-  const isContentActive = pathname?.startsWith(`/${locale}/admin/articles`) || pathname?.startsWith(`/${locale}/admin/sectors`);
+  const isContentActive =
+    pathname?.startsWith(`/${locale}/admin/articles`) ||
+    pathname?.startsWith(`/${locale}/admin/sectors`) ||
+    pathname?.startsWith(`/${locale}/admin/site-settings`);
 
   useEffect(() => {
     setMounted(true);

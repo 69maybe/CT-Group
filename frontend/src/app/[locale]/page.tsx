@@ -7,11 +7,37 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import ArticleCarousel from '@/components/ArticleCarousel';
+import { COMPANY } from '@/config/company';
+import { useSiteSettingsStore, resolveCompanyRuntime } from '@/store/siteSettingsStore';
 
 export default function HomePage() {
   const params = useParams();
   const locale = params.locale as string;
+  const settings = useSiteSettingsStore((s) => s.settings);
   const [featuredArticles, setFeaturedArticles] = useState<any[]>([]);
+
+  const introTitle = settings?.introTitle?.trim() || COMPANY.name;
+  const introDescription =
+    locale === 'vi'
+      ? settings?.introDescriptionVi?.trim() ||
+        'SYSMAC SJC là doanh nghiệp công nghệ tại Việt Nam, chuyên nghiên cứu và phát triển các giải pháp công nghệ tiên tiến trong nhiều lĩnh vực khác nhau.'
+      : settings?.introDescriptionEn?.trim() ||
+        'SYSMAC SJC is a technology company in Vietnam, specializing in research and development of advanced technology solutions across various sectors.';
+
+  const { featuredImages } = resolveCompanyRuntime(settings);
+  const displayFeaturedImages = featuredImages.length > 0 ? featuredImages : [
+    '/images/ctgroup/CT-Land.jpg',
+    '/images/ctgroup/Logiin.jpg',
+    '/images/ctgroup/Bon-14.jpg',
+    '/images/ctgroup/KD1.png'
+  ];
+
+  const introDescription2 =
+    locale === 'vi'
+      ? settings?.introDescription2Vi?.trim() ||
+        'Với sứ mệnh kiến tạo tương lai công nghệ, chúng tôi không ngừng đổi mới và sáng tạo, mang đến những sản phẩm và dịch vụ chất lượng cao cho cộng đồng.'
+      : settings?.introDescription2En?.trim() ||
+        'With the mission of building the future of technology, we continuously innovate and create, bringing high-quality products and services to the community.';
 
   useEffect(() => {
     let cancelled = false;
@@ -47,21 +73,13 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                <span className="text-ct-blue">CT</span>{' '}
-                <span className="text-ct-red">GROUP</span>{' '}
-                <span className="text-gray-800">VIETNAM</span>
+                <span className="text-gray-800">{introTitle}</span>
               </h2>
               <p className="text-gray-600 mb-4 leading-relaxed">
-                {locale === 'vi' 
-                  ? 'CT GROUP VIETNAM là tập đoàn công nghệ hàng đầu Việt Nam, chuyên nghiên cứu và phát triển các giải pháp công nghệ tiên tiến trong nhiều lĩnh vực khác nhau.'
-                  : 'CT GROUP VIETNAM is a leading technology corporation in Vietnam, specializing in research and development of advanced technology solutions across various sectors.'
-                }
+                {introDescription}
               </p>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                {locale === 'vi'
-                  ? 'Với sứ mệnh kiến tạo tương lai công nghệ, chúng tôi không ngừng đổi mới và sáng tạo, mang đến những sản phẩm và dịch vụ chất lượng cao cho cộng đồng.'
-                  : 'With the mission of building the future of technology, we continuously innovate and create, bringing high-quality products and services to the community.'
-                }
+                {introDescription2}
               </p>
               <Link
                 href={`/${locale}/introduction`}
@@ -75,7 +93,7 @@ export default function HomePage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-gray-50 rounded-xl p-6 text-center hover:shadow-lg transition-shadow">
-                <div className="text-4xl font-bold text-ct-blue mb-2">15+</div>
+                <div className="text-4xl font-bold text-ct-blue mb-2">20+</div>
                 <div className="text-gray-600 text-sm">
                   {locale === 'vi' ? 'Lĩnh vực kinh doanh' : 'Business Sectors'}
                 </div>
@@ -107,7 +125,7 @@ export default function HomePage() {
       <section className="py-16 bg-gradient-to-r from-ct-blue to-blue-700 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {locale === 'vi' ? 'Khám phá các lĩnh vực kinh doanh của CT GROUP' : 'Explore CT GROUP Business Sectors'}
+            {locale === 'vi' ? 'Khám phá các lĩnh vực kinh doanh của SYSMAC SJC' : 'Explore SYSMAC SJC Business Sectors'}
           </h2>
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
             {locale === 'vi'
@@ -139,34 +157,15 @@ export default function HomePage() {
             {locale === 'vi' ? 'Hình ảnh nổi bật' : 'Featured Images'}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="relative h-48 rounded-xl overflow-hidden group">
-              <img
-                src="/images/ctgroup/CT-Land.jpg"
-                alt="CT Land"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-            </div>
-            <div className="relative h-48 rounded-xl overflow-hidden group">
-              <img
-                src="/images/ctgroup/Logiin.jpg"
-                alt="Innovation"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-            </div>
-            <div className="relative h-48 rounded-xl overflow-hidden group">
-              <img
-                src="/images/ctgroup/Bon-14.jpg"
-                alt="Business"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-            </div>
-            <div className="relative h-48 rounded-xl overflow-hidden group">
-              <img
-                src="/images/ctgroup/KD1.png"
-                alt="Technology"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-            </div>
+            {displayFeaturedImages.map((src, idx) => (
+              <div key={idx} className="relative h-48 rounded-xl overflow-hidden group">
+                <img
+                  src={src}
+                  alt={`Featured ${idx}`}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>

@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Globe } from 'lucide-react';
 import Image from 'next/image';
 import { useAuthStore } from '@/store/authStore';
+import { resolveCompanyRuntime, useSiteSettingsStore } from '@/store/siteSettingsStore';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -23,10 +24,14 @@ export default function Header() {
     { href: `/${locale}/contact`, label: locale === 'vi' ? 'Liên hệ' : 'Contact' },
   ];
 
-  const socialLinks = [
-    { href: 'https://www.facebook.com/CTgroupVN', icon: 'facebook', label: 'Facebook' },
-    { href: 'https://zalo.me/1371516702089438441', icon: 'zalo', label: 'Zalo' },
-  ];
+  const settings = useSiteSettingsStore((s) => s.settings);
+  const { company, socialLinks: socials } = resolveCompanyRuntime(settings);
+
+  const socialLinks = socials.map((s) => ({
+    href: s.href,
+    icon: s.icon,
+    label: s.label,
+  }));
 
   const handleLanguageChange = (newLocale: string) => {
     const currentPath = window.location.pathname;
@@ -49,13 +54,17 @@ export default function Header() {
               className="hover:opacity-80 transition-opacity"
               aria-label={social.label}
             >
-              <Image
-                src={`/images/ctgroup/${social.icon}.png`}
-                alt={social.label}
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
+              {social.icon === 'website' ? (
+                <Globe className="w-6 h-6" />
+              ) : (
+                <Image
+                  src={`/images/ctgroup/${social.icon.replace(/\.png$/i, '')}.png`}
+                  alt={social.label}
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                />
+              )}
             </a>
           ))}
           <div className="relative">
@@ -96,8 +105,8 @@ export default function Header() {
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center">
             <Image
-              src="/images/ctgroup/logo.png"
-              alt="CT GROUP VIETNAM"
+              src={company.logoPath}
+              alt={company.name}
               width={120}
               height={60}
               className="h-14 w-auto"
