@@ -1,30 +1,30 @@
-'use client';
-
-import { useParams } from 'next/navigation';
 import HeroSlider from '@/components/HeroSlider';
 import BusinessSectors from '@/components/BusinessSectors';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import ArticleCarousel from '@/components/ArticleCarousel';
 import { COMPANY } from '@/config/company';
-import { useSiteSettingsStore, resolveCompanyRuntime } from '@/store/siteSettingsStore';
+import { resolveCompanyRuntime } from '@/store/siteSettingsStore';
 
-export default function HomePage() {
-  const params = useParams();
-  const locale = params.locale as string;
-  const settings = useSiteSettingsStore((s) => s.settings);
-  const [featuredArticles, setFeaturedArticles] = useState<any[]>([]);
+export default async function HomePage({ params }: { params: { locale: string } }) {
+  const locale = params.locale;
+
+  const [featuredArticlesRaw, settings] = await Promise.all([
+    api.getFeaturedArticles(locale).catch(() => []),
+    api.getPublicSiteSettings().catch(() => null),
+  ]);
+
+  const featuredArticles = Array.isArray(featuredArticlesRaw) ? featuredArticlesRaw : [];
 
   const introTitle = settings?.introTitle?.trim() || COMPANY.name;
   const introDescription =
     locale === 'vi'
       ? settings?.introDescriptionVi?.trim() ||
-        'SYSMAC SJC là doanh nghiệp công nghệ tại Việt Nam, chuyên nghiên cứu và phát triển các giải pháp công nghệ tiên tiến trong nhiều lĩnh vực khác nhau.'
+        'SYSMAC JSC là doanh nghiệp công nghệ tại Việt Nam, chuyên nghiên cứu và phát triển các giải pháp công nghệ tiên tiến trong nhiều lĩnh vực khác nhau.'
       : settings?.introDescriptionEn?.trim() ||
-        'SYSMAC SJC is a technology company in Vietnam, specializing in research and development of advanced technology solutions across various sectors.';
+        'SYSMAC JSC is a technology company in Vietnam, specializing in research and development of advanced technology solutions across various sectors.';
 
-  const { featuredImages } = resolveCompanyRuntime(settings);
+  const { company, featuredImages, bannerImages } = resolveCompanyRuntime(settings as any);
   const displayFeaturedImages = featuredImages.length > 0 ? featuredImages : [
     '/images/ctgroup/CT-Land.jpg',
     '/images/ctgroup/Logiin.jpg',
@@ -39,27 +39,10 @@ export default function HomePage() {
       : settings?.introDescription2En?.trim() ||
         'With the mission of building the future of technology, we continuously innovate and create, bringing high-quality products and services to the community.';
 
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .getFeaturedArticles(locale)
-      .then((items) => {
-        if (!cancelled) {
-          setFeaturedArticles(Array.isArray(items) ? items : []);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setFeaturedArticles([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [locale]);
-
   return (
     <div>
       {/* Hero Slider */}
-      <HeroSlider />
+      <HeroSlider companyName={company.name} bannerImages={bannerImages} bannerPath={company.bannerPath} />
 
       {/* Featured Articles Carousel */}
       {featuredArticles.length > 0 && <ArticleCarousel articles={featuredArticles} />}
@@ -125,7 +108,7 @@ export default function HomePage() {
       <section className="py-16 bg-gradient-to-r from-ct-blue to-blue-700 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {locale === 'vi' ? 'Khám phá các lĩnh vực kinh doanh của SYSMAC SJC' : 'Explore SYSMAC SJC Business Sectors'}
+            {locale === 'vi' ? 'Khám phá các lĩnh vực kinh doanh của SYSMAC JSC' : 'Explore SYSMAC JSC Business Sectors'}
           </h2>
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
             {locale === 'vi'

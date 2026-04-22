@@ -7,20 +7,15 @@ export default function SiteSettingsProvider({ children }: { children: React.Rea
   const loadPublic = useSiteSettingsStore((s) => s.loadPublic);
   const loaded = useSiteSettingsStore((s) => s.loaded);
 
+  const [hasHydrated, setHasHydrated] = useState(false);
+
   useEffect(() => {
+    setHasHydrated(true);
     if (!loaded) loadPublic();
   }, [loaded, loadPublic]);
 
-  if (!loaded) {
-    return (
-      <div className="fixed inset-0 bg-white flex items-center justify-center z-[9999]">
-        <div className="flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-[#0e4b85] border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-[#0e4b85] font-medium animate-pulse">Đang tải dữ liệu...</p>
-        </div>
-      </div>
-    );
-  }
+  // Prevent hydration mismatch while keeping SSR visible
+  if (!hasHydrated) return <>{children}</>;
 
   return <>{children}</>;
 }

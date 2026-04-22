@@ -17,8 +17,9 @@ function resolveApiBaseUrl(): string {
   return `${normalizeBackendOrigin(raw)}/api`;
 }
 
-interface FetchOptions extends RequestInit {
+interface FetchOptions extends Omit<RequestInit, 'next'> {
   token?: string;
+  next?: { revalidate?: number | false; tags?: string[] };
 }
 
 class ApiClient {
@@ -45,26 +46,36 @@ class ApiClient {
     const { token, ...fetchOptions } = options;
     const baseUrl = resolveApiBaseUrl();
 
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...fetchOptions.headers,
-    };
+    const headers = new Headers(fetchOptions.headers);
+
+    if (!(fetchOptions.body instanceof FormData) && !headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
 
     if (token) {
-      (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    // SSR optimizations: default to 'no-store' to prevent stale data if no caching options are provided
+    if (typeof window === 'undefined' && !fetchOptions.cache && !fetchOptions.next) {
+      fetchOptions.cache = 'no-store';
     }
 
     let response: Response;
+    const url = `${baseUrl}${endpoint}`;
+
     try {
-      response = await fetch(`${baseUrl}${endpoint}`, {
-        ...fetchOptions,
+      // Cast fetchOptions to any to avoid TypeScript conflicts with Next.js augmented RequestInit
+      response = await fetch(url, {
+        ...(fetchOptions as any),
         headers,
       });
-    } catch {
+    } catch (error: any) {
+      console.error(`[API Fetch Error] ${url}:`, error.message || error);
       throw new Error(
         typeof window !== 'undefined'
-          ? 'Cannot reach API. Start the backend (e.g. mvn spring-boot:run -Pdev), then reload. Requests use Next.js /api proxy — ensure port matches BACKEND_URL or NEXT_PUBLIC_API_URL in .env.local.'
-          : `Cannot reach API at ${baseUrl}. Set INTERNAL_API_URL or NEXT_PUBLIC_API_URL.`
+          ? 'Cannot reach API. Start the backend (e.g. mvn spring-boot:run -Pdev), then reload. Requests use Next.js /api proxy.'
+          : `Cannot reach API at ${baseUrl}. Ensure backend is running and INTERNAL_API_URL is correct.`
       );
     }
 
@@ -72,24 +83,32 @@ class ApiClient {
       return {} as T;
     }
 
-    const json = await response.json().catch(() => ({}));
+    const text = await response.text().catch(() => '');
+    let json: any = {};
+    if (text) {
+      try {
+        json = JSON.parse(text);
+      } catch {
+        if (!response.ok) throw new Error(text || 'Request failed');
+        return text as any as T;
+      }
+    }
 
     if (!response.ok) {
       const msg =
-        (json as { message?: string; error?: string }).message ||
-        (json as { message?: string; error?: string }).error ||
-        'Request failed';
+        json?.message ||
+        json?.error ||
+        `Request failed with status ${response.status}`;
       throw new Error(msg);
     }
 
     // Spring ApiResponse { success, message, data }
     if (json && typeof json === 'object' && 'success' in json) {
-      const wrap = json as { success: boolean; message?: string; data?: unknown };
-      if (wrap.success === false) {
-        throw new Error(wrap.message || 'Request failed');
+      if (json.success === false) {
+        throw new Error(json.message || 'Request failed');
       }
-      if ('data' in wrap && wrap.data !== undefined) {
-        return wrap.data as T;
+      if ('data' in json && json.data !== undefined) {
+        return json.data as T;
       }
     }
 

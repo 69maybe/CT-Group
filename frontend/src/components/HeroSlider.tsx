@@ -1,21 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { resolveCompanyRuntime, useSiteSettingsStore } from '@/store/siteSettingsStore';
 
-export default function HeroSlider() {
+interface HeroSliderProps {
+  companyName: string;
+  bannerImages: string[];
+  bannerPath?: string;
+}
+
+export default function HeroSlider({ companyName, bannerImages, bannerPath }: HeroSliderProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const settings = useSiteSettingsStore((s) => s.settings);
-  const { company, bannerImages } = resolveCompanyRuntime(settings);
 
-  const fallbackSlides = [
-    // no default banners; admin-managed only
-  ];
-
-  const images = (bannerImages.length ? bannerImages : [company.bannerPath]).filter(Boolean);
-  const slides = [...images, ...fallbackSlides].map((image) => ({ image, alt: company.name }));
+  const slides = useMemo(() => {
+    let images = bannerImages.filter(Boolean);
+    if (!images.length) {
+      images = bannerPath ? [bannerPath] : ['/images/default-banner.jpg'];
+    }
+    return images.map((image) => ({ image, alt: companyName }));
+  }, [bannerImages, bannerPath, companyName]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -40,7 +44,7 @@ export default function HeroSlider() {
       <section className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden bg-gradient-to-r from-ct-blue to-blue-700">
         <div className="absolute inset-0 z-20 flex items-center justify-center">
           <div className="text-center text-white px-4">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">{company.name}</h1>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">{companyName}</h1>
           </div>
         </div>
       </section>
@@ -84,7 +88,7 @@ export default function HeroSlider() {
       {/* Content */}
       <div className="absolute inset-0 z-20 flex items-center justify-center">
         <div className="text-center text-white px-4">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">{company.name}</h1>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4">{companyName}</h1>
         </div>
       </div>
 
