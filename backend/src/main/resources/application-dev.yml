@@ -22,5 +22,5 @@ cors:
 
 app:
   seed:
-    admin-email: ${ADMIN_EMAIL:admin@ctgroup.vn}
+    admin-email: ${ADMIN_EMAIL:admin@sysmac.vn}
     admin-password: ${ADMIN_PASSWORD:Admin@123}

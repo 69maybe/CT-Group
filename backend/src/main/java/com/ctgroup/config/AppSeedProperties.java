@@ -10,6 +10,6 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "app.seed")
 public class AppSeedProperties {
 
-    private String adminEmail = "admin@ctgroup.vn";
+    private String adminEmail = "admin@sysmac.vn";
     private String adminPassword = "Admin@123";
 }

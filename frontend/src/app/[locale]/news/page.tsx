@@ -20,7 +20,6 @@ function categoryLabel(cat: string | undefined, locale: string) {
   return c.charAt(0) + c.slice(1).toLowerCase();
 }
 
-/** Tin mẫu khi API chưa chạy / DB trống / lỗi mạng — cùng slug với seed backend */
 function getFallbackArticles(locale: string) {
   return [
     {
@@ -28,12 +27,12 @@ function getFallbackArticles(locale: string) {
       slug: 'ct-smart-city-vietnam-tech-week-2026',
       title:
         locale === 'vi'
-          ? 'CT GROUP giới thiệu giải pháp Smart City tại Vietnam Tech Week 2026'
-          : 'CT GROUP Introduces Smart City Solutions at Vietnam Tech Week 2026',
+          ? 'SYSMAC giới thiệu giải pháp Smart City tại Vietnam Tech Week 2026'
+          : 'SYSMAC Introduces Smart City Solutions at Vietnam Tech Week 2026',
       excerpt:
         locale === 'vi'
-          ? 'CT GROUP đã giới thiệu các giải pháp thành phố thông minh tiên tiến tại sự kiện Vietnam Tech Week 2026.'
-          : 'CT GROUP showcased advanced smart city solutions at Vietnam Tech Week 2026.',
+          ? 'SYSMAC đã giới thiệu các giải pháp thành phố thông minh tiên tiến tại sự kiện Vietnam Tech Week 2026.'
+          : 'SYSMAC showcased advanced smart city solutions at Vietnam Tech Week 2026.',
       image: '/images/ctgroup/CT-Land.jpg',
       category: 'NEWS',
       publishedAt: '2026-03-15T12:00:00',
@@ -47,8 +46,8 @@ function getFallbackArticles(locale: string) {
           : 'Strategic Partnership with Japanese Partner in AI Field',
       excerpt:
         locale === 'vi'
-          ? 'CT GROUP ký kết hợp tác chiến lược với tập đoàn công nghệ hàng đầu Nhật Bản.'
-          : 'CT GROUP signs strategic partnership with a leading Japanese technology group.',
+          ? 'SYSMAC ký kết hợp tác chiến lược với tập đoàn công nghệ hàng đầu Nhật Bản.'
+          : 'SYSMAC signs strategic partnership with a leading Japanese technology group.',
       image: '/images/ctgroup/Logiin.jpg',
       category: 'NEWS',
       publishedAt: '2026-02-28T12:00:00',
@@ -58,12 +57,12 @@ function getFallbackArticles(locale: string) {
       slug: 'ct-innovation-hub-4-launch',
       title:
         locale === 'vi'
-          ? 'Ra mắt CT Innovation Hub 4.0 - Trung tâm đổi mới sáng tạo'
-          : 'Launch of CT Innovation Hub 4.0 - Innovation Center',
+          ? 'Ra mắt SYSMAC Innovation Hub 4.0 - Trung tâm đổi mới sáng tạo'
+          : 'Launch of SYSMAC Innovation Hub 4.0 - Innovation Center',
       excerpt:
         locale === 'vi'
-          ? 'CT GROUP chính thức ra mắt CT Innovation Hub 4.0.'
-          : 'CT GROUP officially launches CT Innovation Hub 4.0.',
+          ? 'SYSMAC chính thức ra mắt SYSMAC Innovation Hub 4.0.'
+          : 'SYSMAC officially launches SYSMAC Innovation Hub 4.0.',
       image: '/images/ctgroup/Bon-14.jpg',
       category: 'NEWS',
       publishedAt: '2026-01-20T12:00:00',
@@ -120,8 +119,8 @@ export default function NewsPage() {
             </h1>
             <p className="text-xl opacity-90">
               {locale === 'vi'
-                ? 'Cập nhật tin tức mới nhất từ CT GROUP'
-                : 'Latest updates from CT GROUP'}
+                ? 'Cập nhật tin tức mới nhất từ SYSMAC'
+                : 'Latest updates from SYSMAC'}
             </p>
           </div>
         </div>
@@ -156,10 +155,10 @@ export default function NewsPage() {
                     <div className="text-sm text-gray-500 mb-2">
                       {dateStr
                         ? new Date(dateStr).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
                         : ''}
                     </div>
                     <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">{item.title}</h2>

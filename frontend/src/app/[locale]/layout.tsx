@@ -13,10 +13,10 @@ import IdleLogout from '@/components/IdleLogout';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'CT GROUP VIETNAM - Công Nghệ Cao',
+  title: 'SYSMAC JSC',
   description:
-    'CT GROUP VIETNAM - Đổi Mới Công Nghệ, Kiến Tạo Tương Lai. 20 lĩnh vực kinh doanh đa dạng từ Smart City đến AI.',
-  keywords: 'CT GROUP, Vietnam, technology, smart city, AI, biotech, drone, semiconductor',
+    'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
+  keywords: 'SYSMAC JSC, Vietnam, technology, smart city, AI, biotech, drone, semiconductor',
   icons: {
     icon: '/images/ctgroup/logo.png',
   },

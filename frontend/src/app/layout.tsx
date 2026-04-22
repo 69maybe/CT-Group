@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
 
 export const metadata: Metadata = {
-  title: 'CT GROUP VIETNAM',
-  description: 'CT GROUP VIETNAM — công nghệ cao, đa lĩnh vực (20 lĩnh vực kinh doanh).',
+  title: 'SYSMAC JSC',
+  description: 'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
   icons: {
     icon: '/images/ctgroup/logo.png',
   },

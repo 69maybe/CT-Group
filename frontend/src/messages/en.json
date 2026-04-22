@@ -101,7 +101,7 @@
     "panelBullet1": "Manage content and operations",
     "panelBullet2": "Secure access to the admin area",
     "demoTitle": "Demo accounts (default backend seed)",
-    "demoAdmin": "Admin: admin@ctgroup.vn — password Admin@123",
+    "demoAdmin": "Admin: admin@sysmac.vn — password Admin@123",
     "demoCustomer": "Customer: customer@example.com — password Customer@123"
   },
   "cart": {
