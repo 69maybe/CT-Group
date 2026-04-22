@@ -86,7 +86,7 @@ export default function LoginPage() {
           </Link>
           <div className="max-w-2xl">
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/80 mb-2">
-              CT GROUP
+              SYSMAC JSC
             </p>
             <h1 className="text-3xl md:text-4xl font-bold font-heading tracking-tight">
               {t('loginTitle')}
@@ -108,7 +108,7 @@ export default function LoginPage() {
                 <div className="relative w-44 h-14 mb-8">
                   <Image
                     src="/images/ctgroup/logo.png"
-                    alt="CT GROUP"
+                    alt="SYSMAC JSC"
                     fill
                     className="object-contain object-left"
                     sizes="176px"
@@ -141,7 +141,7 @@ export default function LoginPage() {
                 <div className="relative w-32 h-10">
                   <Image
                     src="/images/ctgroup/logo.png"
-                    alt="CT GROUP"
+                    alt="SYSMAC JSC"
                     fill
                     className="object-contain object-left"
                     sizes="128px"

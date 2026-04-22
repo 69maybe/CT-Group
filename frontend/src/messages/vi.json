@@ -26,8 +26,8 @@
       "contact": "Liên hệ - CT GROUP",
       "cart": "Giỏ hàng - CT GROUP",
       "checkout": "Thanh toán - CT GROUP",
-      "login": "Đăng nhập - CT GROUP",
-      "register": "Đăng ký - CT GROUP",
+      "login": "Đăng nhập - SYSMAC JSC",
+      "register": "Đăng ký - SYSMAC JSC",
       "account": "Tài khoản - CT GROUP"
     }
   },
@@ -79,7 +79,7 @@
   },
   "auth": {
     "loginTitle": "Đăng nhập",
-    "welcomeSubtitle": "Truy cập tài khoản nội bộ CT GROUP VIETNAM",
+    "welcomeSubtitle": "Truy cập tài khoản nội bộ SYSMAC JSC",
     "email": "Email",
     "password": "Mật khẩu",
     "loggingIn": "Đang đăng nhập...",
@@ -88,7 +88,7 @@
     "noAccount": "Chưa có tài khoản?",
     "register": "Đăng ký ngay",
     "registerTitle": "Tạo tài khoản",
-    "createAccountSubtitle": "Tham gia cùng CT GROUP VIETNAM",
+    "createAccountSubtitle": "Tham gia cùng SYSMAC JSC",
     "name": "Họ và tên",
     "phone": "Số điện thoại",
     "registering": "Đang đăng ký...",
@@ -96,7 +96,7 @@
     "hasAccount": "Đã có tài khoản?",
     "secureNote": "Phiên làm việc được bảo vệ. Chỉ đăng nhập trên thiết bị tin cậy.",
     "backHome": "Về trang chủ",
-    "panelTitle": "CT GROUP VIETNAM",
+    "panelTitle": "SYSMAC JSC",
     "panelSubtitle": "Đổi mới công nghệ — Kiến tạo tương lai",
     "panelBullet1": "Quản lý nội dung và hệ thống",
     "panelBullet2": "Truy cập khu vực quản trị an toàn",

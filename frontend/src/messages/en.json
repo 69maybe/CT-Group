@@ -26,8 +26,8 @@
       "contact": "Contact - CT GROUP",
       "cart": "Cart - CT GROUP",
       "checkout": "Checkout - CT GROUP",
-      "login": "Login - CT GROUP",
-      "register": "Register - CT GROUP",
+      "login": "Login - SYSMAC JSC",
+      "register": "Register - SYSMAC JSC",
       "account": "Account - CT GROUP"
     }
   },
@@ -79,7 +79,7 @@
   },
   "auth": {
     "loginTitle": "Sign in",
-    "welcomeSubtitle": "Access your CT GROUP VIETNAM account",
+    "welcomeSubtitle": "Access your SYSMAC JSC account",
     "email": "Email",
     "password": "Password",
     "loggingIn": "Signing in...",
@@ -88,7 +88,7 @@
     "noAccount": "Don't have an account?",
     "register": "Register",
     "registerTitle": "Create account",
-    "createAccountSubtitle": "Join CT GROUP VIETNAM",
+    "createAccountSubtitle": "Join SYSMAC JSC",
     "name": "Full name",
     "phone": "Phone number",
     "registering": "Creating account...",
@@ -96,7 +96,7 @@
     "hasAccount": "Already have an account?",
     "secureNote": "Your session is protected. Sign in only on trusted devices.",
     "backHome": "Back to home",
-    "panelTitle": "CT GROUP VIETNAM",
+    "panelTitle": "SYSMAC JSC",
     "panelSubtitle": "Technology innovation — Building the future",
     "panelBullet1": "Manage content and operations",
     "panelBullet2": "Secure access to the admin area",
