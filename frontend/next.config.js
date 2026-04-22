@@ -33,7 +33,6 @@ const nextConfig = {
         hostname: '**.ctgroupvietnam.com',
       },
     ],
-    unoptimized: true,
   },
 };
 

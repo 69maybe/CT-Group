@@ -77,6 +77,7 @@ export default function HeroSlider({ companyName, bannerImages, bannerPath }: He
             src={slide.image}
             alt={slide.alt}
             fill
+            sizes="100vw"
             className="object-cover"
             priority={index === 0}
           />

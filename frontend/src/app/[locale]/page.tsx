@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import ArticleCarousel from '@/components/ArticleCarousel';
 import { COMPANY } from '@/config/company';
 import { resolveCompanyRuntime } from '@/store/siteSettingsStore';
+import Image from 'next/image';
 
 export default async function HomePage({ params }: { params: { locale: string } }) {
   const locale = params.locale;
@@ -142,10 +143,12 @@ export default async function HomePage({ params }: { params: { locale: string } 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {displayFeaturedImages.map((src, idx) => (
               <div key={idx} className="relative h-48 rounded-xl overflow-hidden group">
-                <img loading="lazy"
+                <Image
                   src={src}
                   alt={`Featured ${idx}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
             ))}
