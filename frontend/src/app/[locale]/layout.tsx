@@ -27,6 +27,7 @@ export async function generateMetadata({ params: { locale } }: { params: { local
       },
     },
     openGraph: {
+      url: `/${locale}`,
       locale: isEn ? 'en_US' : 'vi_VN',
     }
   };

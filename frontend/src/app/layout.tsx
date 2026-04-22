@@ -13,15 +13,7 @@ export const metadata: Metadata = {
     template: '%s | SYSMAC JSC',
   },
   description: 'SYSMAC JSC cung cấp giải pháp AI, Smart City, IoT, Robotics và công nghệ cao tại Việt Nam, hỗ trợ doanh nghiệp chuyển đổi số toàn diện.',
-  keywords: ['SYSMAC JSC', 'AI Vietnam', 'Smart City Vietnam', 'IoT solutions Vietnam',
-    'Industrial automation Vietnam', 'đa lĩnh vực', 'công ty công nghệ', 'phần mềm', 'giải pháp CNTT'],
-  alternates: {
-    canonical: '/',
-    languages: {
-      'vi-VN': '/vi',
-      'en-US': '/en',
-    },
-  },
+  keywords: ['SYSMAC JSC', 'AI Vietnam', 'Smart City Vietnam', 'IoT solutions Vietnam', 'Industrial automation Vietnam', 'đa lĩnh vực', 'công ty công nghệ', 'phần mềm', 'giải pháp CNTT'],
   authors: [{ name: 'SYSMAC JSC' }],
   creator: 'SYSMAC JSC',
   publisher: 'SYSMAC JSC',
@@ -31,9 +23,6 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: 'SYSMAC JSC',
-    description: 'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
-    url: 'https://sysmac.vn',
     siteName: 'SYSMAC JSC',
     images: [
       {
@@ -43,13 +32,10 @@ export const metadata: Metadata = {
         alt: 'SYSMAC JSC Logo',
       },
     ],
-    locale: 'vi_VN',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SYSMAC JSC',
-    description: 'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
     images: ['https://sysmac.vn/images/ctgroup/logo.png'],
   },
   robots: {
@@ -74,41 +60,48 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const jsonLd = {
+  const schemaGraph = {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'SYSMAC JSC',
-    url: 'https://sysmac.vn',
-    logo: 'https://sysmac.vn/images/ctgroup/logo.png',
-    description: 'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
-    sameAs: [
-      'https://www.facebook.com/sysmacjsc',
-      'https://www.linkedin.com/company/sysmac-jsc'
-    ],
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+84-123-456-789',
-      contactType: 'customer service',
-      email: 'contact@sysmac.vn'
-    },
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: 'Số 1, Đường 1',
-      addressLocality: 'Hồ Chí Minh',
-      addressCountry: 'VN'
-    }
-  };
-
-  const websiteJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'SYSMAC JSC',
-    url: 'https://sysmac.vn',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: 'https://sysmac.vn/search?q={search_term_string}',
-      'query-input': 'required name=search_term_string'
-    }
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': 'https://sysmac.vn/#organization',
+        name: 'SYSMAC JSC',
+        url: 'https://sysmac.vn',
+        logo: 'https://sysmac.vn/images/ctgroup/logo.png',
+        description: 'SYSMAC JSC cung cấp giải pháp AI, Smart City, IoT, Robotics và công nghệ cao tại Việt Nam.',
+        sameAs: [
+          'https://www.facebook.com/sysmacjsc',
+          'https://www.linkedin.com/company/sysmac-jsc'
+        ],
+        contactPoint: {
+          '@type': 'ContactPoint',
+          telephone: '+84-123-456-789',
+          contactType: 'customer service',
+          email: 'contact@sysmac.vn'
+        },
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Số 1, Đường 1',
+          addressLocality: 'Hồ Chí Minh',
+          addressCountry: 'VN'
+        }
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://sysmac.vn/#website',
+        name: 'SYSMAC JSC',
+        url: 'https://sysmac.vn',
+        publisher: {
+          '@id': 'https://sysmac.vn/#organization'
+        },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: 'https://sysmac.vn/search?q={search_term_string}',
+          'query-input': 'required name=search_term_string'
+        }
+      }
+    ]
   };
 
   return (
@@ -116,11 +109,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaGraph) }}
         />
         {children}
       </body>
