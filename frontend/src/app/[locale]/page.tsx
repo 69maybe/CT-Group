@@ -26,10 +26,10 @@ export default async function HomePage({ params }: { params: { locale: string } 
 
   const { company, featuredImages, bannerImages } = resolveCompanyRuntime(settings as any);
   const displayFeaturedImages = featuredImages.length > 0 ? featuredImages : [
-    '/images/ctgroup/CT-Land.jpg',
-    '/images/ctgroup/Logiin.jpg',
-    '/images/ctgroup/Bon-14.jpg',
-    '/images/ctgroup/KD1.png'
+    '/images/ctgroup/CT-Land.webp',
+    '/images/ctgroup/Logiin.webp',
+    '/images/ctgroup/Bon-14.webp',
+    '/images/ctgroup/KD1.webp'
   ];
 
   const introDescription2 =
@@ -142,7 +142,7 @@ export default async function HomePage({ params }: { params: { locale: string } 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {displayFeaturedImages.map((src, idx) => (
               <div key={idx} className="relative h-48 rounded-xl overflow-hidden group">
-                <img
+                <img loading="lazy"
                   src={src}
                   alt={`Featured ${idx}`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"

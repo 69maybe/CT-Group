@@ -391,7 +391,7 @@ export default function AdminUsers() {
                 </label>
                 {formData.avatar && (
                   <div className="mt-3 relative w-20 h-20">
-                    <img src={formData.avatar} alt="" className="w-20 h-20 object-cover rounded-full border" />
+                    <img loading="lazy" src={formData.avatar} alt="" className="w-20 h-20 object-cover rounded-full border" />
                     <button
                       type="button"
                       onClick={() => setFormData((prev) => ({ ...prev, avatar: '' }))}

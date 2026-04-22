@@ -186,7 +186,7 @@ export default function ContactPage() {
                         <Globe className="w-6 h-6" />
                       ) : (
                         <Image
-                          src={`/images/ctgroup/${social.icon.replace(/\.png$/i, '')}.png`}
+                          src={`/images/ctgroup/${social.icon.replace(/\.(png|webp)$/i, '')}.webp`}
                           alt={social.label}
                           width={24}
                           height={24}

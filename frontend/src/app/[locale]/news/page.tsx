@@ -33,7 +33,7 @@ function getFallbackArticles(locale: string) {
         locale === 'vi'
           ? 'SYSMAC đã giới thiệu các giải pháp thành phố thông minh tiên tiến tại sự kiện Vietnam Tech Week 2026.'
           : 'SYSMAC showcased advanced smart city solutions at Vietnam Tech Week 2026.',
-      image: '/images/ctgroup/CT-Land.jpg',
+      image: '/images/ctgroup/CT-Land.webp',
       category: 'NEWS',
       publishedAt: '2026-03-15T12:00:00',
     },
@@ -48,7 +48,7 @@ function getFallbackArticles(locale: string) {
         locale === 'vi'
           ? 'SYSMAC ký kết hợp tác chiến lược với tập đoàn công nghệ hàng đầu Nhật Bản.'
           : 'SYSMAC signs strategic partnership with a leading Japanese technology group.',
-      image: '/images/ctgroup/Logiin.jpg',
+      image: '/images/ctgroup/Logiin.webp',
       category: 'NEWS',
       publishedAt: '2026-02-28T12:00:00',
     },
@@ -63,7 +63,7 @@ function getFallbackArticles(locale: string) {
         locale === 'vi'
           ? 'SYSMAC chính thức ra mắt SYSMAC Innovation Hub 4.0.'
           : 'SYSMAC officially launches SYSMAC Innovation Hub 4.0.',
-      image: '/images/ctgroup/Bon-14.jpg',
+      image: '/images/ctgroup/Bon-14.webp',
       category: 'NEWS',
       publishedAt: '2026-01-20T12:00:00',
     },
@@ -138,7 +138,7 @@ export default function NewsPage() {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {displayed.map((item) => {
-              const img = item.image || '/images/ctgroup/logo.png';
+              const img = item.image || '/images/ctgroup/logo.webp';
               const dateStr = item.publishedAt || item.createdAt;
               return (
                 <article

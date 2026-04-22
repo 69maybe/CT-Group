@@ -138,7 +138,7 @@ export default function AccountPage() {
               <div className="relative">
                 <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center overflow-hidden">
                   {formData.avatar ? (
-                    <img src={formData.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    <img loading="lazy" src={formData.avatar} alt={user.name} className="w-full h-full object-cover" />
                   ) : (
                     <User className="w-8 h-8 text-primary-600" />
                   )}

@@ -34,7 +34,7 @@ function getOfflineArticle(slug: string, locale: string): any | null {
         vi: '<p>SYSMAC JSC đã tham gia Vietnam Tech Week 2026 với các giải pháp thành phố thông minh.</p><p>Khi backend hoạt động, nội dung đầy đủ sẽ được tải từ máy chủ.</p>',
         en: '<p>SYSMAC JSC participated in Vietnam Tech Week 2026 with smart city solutions.</p><p>When the backend is available, full content loads from the server.</p>',
       },
-      image: '/images/ctgroup/CT-Land.jpg',
+      image: '/images/ctgroup/CT-Land.webp',
       at: '2026-03-15T12:00:00',
     },
     'ct-ai-partnership-japan-2026': {
@@ -46,7 +46,7 @@ function getOfflineArticle(slug: string, locale: string): any | null {
         vi: '<p>SYSMAC JSC ký kết hợp tác chiến lược trong lĩnh vực AI.</p>',
         en: '<p>SYSMAC JSC signed a strategic partnership in AI.</p>',
       },
-      image: '/images/ctgroup/Logiin.jpg',
+      image: '/images/ctgroup/Logiin.webp',
       at: '2026-02-28T12:00:00',
     },
     'ct-innovation-hub-4-launch': {
@@ -58,7 +58,7 @@ function getOfflineArticle(slug: string, locale: string): any | null {
         vi: '<p>SYSMAC JSC ra mắt trung tâm đổi mới sáng tạo.</p>',
         en: '<p>SYSMAC JSC launches the innovation center.</p>',
       },
-      image: '/images/ctgroup/Bon-14.jpg',
+      image: '/images/ctgroup/Bon-14.webp',
       at: '2026-01-20T12:00:00',
     },
   };
@@ -131,7 +131,7 @@ export default function NewsDetailPage() {
   }
 
   const dateStr = article.publishedAt || article.createdAt;
-  const img = article.image || '/images/ctgroup/logo.png';
+  const img = article.image || '/images/ctgroup/logo.webp';
 
   return (
     <div>

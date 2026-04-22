@@ -42,7 +42,7 @@ export function slugify(text: string): string {
     .replace(/\-\-+/g, '-');
 }
 
-export function getImageUrl(path: string | null | undefined, fallback: string = '/placeholder.jpg'): string {
+export function getImageUrl(path: string | null | undefined, fallback: string = '/placeholder.webp'): string {
   if (!path) return fallback;
   if (path.startsWith('http')) return path;
   return path;

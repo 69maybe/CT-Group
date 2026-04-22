@@ -107,7 +107,7 @@ export default function LoginPage() {
               <div className="relative">
                 <div className="relative w-44 h-14 mb-8">
                   <Image
-                    src="/images/ctgroup/logo.png"
+                    src="/images/ctgroup/logo.webp"
                     alt="SYSMAC JSC"
                     fill
                     className="object-contain object-left"
@@ -140,7 +140,7 @@ export default function LoginPage() {
               <div className="lg:hidden flex items-center gap-4 mb-8 pb-8 border-b border-gray-100">
                 <div className="relative w-32 h-10">
                   <Image
-                    src="/images/ctgroup/logo.png"
+                    src="/images/ctgroup/logo.webp"
                     alt="SYSMAC JSC"
                     fill
                     className="object-contain object-left"

@@ -16,7 +16,7 @@ export default function HeroSlider({ companyName, bannerImages, bannerPath }: He
   const slides = useMemo(() => {
     let images = bannerImages.filter(Boolean);
     if (!images.length) {
-      images = bannerPath ? [bannerPath] : ['/images/default-banner.jpg'];
+      images = bannerPath ? [bannerPath] : ['/images/default-banner.webp'];
     }
     return images.map((image) => ({ image, alt: companyName }));
   }, [bannerImages, bannerPath, companyName]);

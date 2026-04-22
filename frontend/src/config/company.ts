@@ -6,7 +6,7 @@ export type CompanySocialLink = {
 
 export const COMPANY = {
   name: 'SYSMAC JSC',
-  logoPath: '/images/ctgroup/logo.png',
+  logoPath: '/images/ctgroup/logo.webp',
   bannerPath: '',
 
   phoneDisplay: '0845550555',

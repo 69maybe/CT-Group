@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: 'SYSMAC JSC',
     images: [
       {
-        url: 'https://sysmac.vn/images/ctgroup/logo.png',
+        url: 'https://sysmac.vn/images/ctgroup/logo.webp',
         width: 800,
         height: 600,
         alt: 'SYSMAC JSC Logo',
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    images: ['https://sysmac.vn/images/ctgroup/logo.png'],
+    images: ['https://sysmac.vn/images/ctgroup/logo.webp'],
   },
   robots: {
     index: true,
@@ -50,8 +50,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/images/ctgroup/logo.png',
-    apple: '/images/ctgroup/logo.png',
+    icon: '/images/ctgroup/logo.webp',
+    apple: '/images/ctgroup/logo.webp',
   },
 };
 
@@ -68,7 +68,7 @@ export default function RootLayout({
         '@id': 'https://sysmac.vn/#organization',
         name: 'SYSMAC JSC',
         url: 'https://sysmac.vn',
-        logo: 'https://sysmac.vn/images/ctgroup/logo.png',
+        logo: 'https://sysmac.vn/images/ctgroup/logo.webp',
         description: 'SYSMAC JSC cung cấp giải pháp AI, Smart City, IoT, Robotics và công nghệ cao tại Việt Nam.',
         sameAs: [
           'https://www.facebook.com/sysmacjsc',

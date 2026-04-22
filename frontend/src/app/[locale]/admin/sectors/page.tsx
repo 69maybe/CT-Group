@@ -178,7 +178,7 @@ export default function AdminSectorsPage() {
                 <div className="flex items-start gap-3">
                   <div className="w-16 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                     {item.imagePath ? (
-                      <img src={item.imagePath} alt={item.titleVi || item.titleEn} className="w-full h-full object-cover" />
+                      <img loading="lazy" src={item.imagePath} alt={item.titleVi || item.titleEn} className="w-full h-full object-cover" />
                     ) : null}
                   </div>
                   <div className="min-w-0">
@@ -289,7 +289,7 @@ export default function AdminSectorsPage() {
                 </label>
                 {form.imagePath && (
                   <div className="mt-3 relative w-32 h-24">
-                    <img src={form.imagePath} alt="" className="w-32 h-24 object-cover rounded-lg border" />
+                    <img loading="lazy" src={form.imagePath} alt="" className="w-32 h-24 object-cover rounded-lg border" />
                     <button
                       type="button"
                       onClick={() => setForm((prev: any) => ({ ...prev, imagePath: '' }))}

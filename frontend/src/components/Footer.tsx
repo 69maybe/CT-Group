@@ -69,7 +69,7 @@ export default function Footer() {
                     <Globe className="w-7 h-7" />
                   ) : (
                     <Image
-                      src={`/images/ctgroup/${social.icon.replace(/\.png$/i, '')}.png`}
+                      src={`/images/ctgroup/${social.icon.replace(/\.(png|webp)$/i, '')}.webp`}
                       alt={social.label}
                       width={28}
                       height={28}

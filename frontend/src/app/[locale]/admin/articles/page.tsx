@@ -275,7 +275,7 @@ export default function AdminArticles() {
                 <tr key={article.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     {article.image ? (
-                      <img src={article.image} alt="" className="w-16 h-16 object-cover rounded-lg" />
+                      <img loading="lazy" src={article.image} alt="" className="w-16 h-16 object-cover rounded-lg" />
                     ) : (
                       <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
                         <FileText className="w-6 h-6 text-gray-400" />
@@ -436,7 +436,7 @@ export default function AdminArticles() {
                   </label>
                   {formData.image && (
                     <div className="mt-3 relative w-32 h-32">
-                      <img src={formData.image} alt="" className="w-32 h-32 object-cover rounded-lg border" />
+                      <img loading="lazy" src={formData.image} alt="" className="w-32 h-32 object-cover rounded-lg border" />
                       <button
                         type="button"
                         onClick={() => setFormData((prev) => ({ ...prev, image: '' }))}

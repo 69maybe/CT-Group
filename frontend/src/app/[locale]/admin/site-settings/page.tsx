@@ -14,15 +14,15 @@ type SocialLink = { href: string; icon: string; label: string };
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 const ICON_CHOICES: Array<{ label: string; icon: string; aliases: string[] }> = [
-  { label: 'Facebook', icon: 'facebook.png', aliases: ['facebook', 'fb'] },
-  { label: 'Zalo', icon: 'zalo.png', aliases: ['zalo'] },
-  { label: 'YouTube', icon: 'youtube.png', aliases: ['youtube', 'yt'] },
-  { label: 'LinkedIn', icon: 'linkedin.png', aliases: ['linkedin'] },
-  { label: 'Instagram', icon: 'instagram.png', aliases: ['instagram', 'ig'] },
-  { label: 'TikTok', icon: 'tiktok.png', aliases: ['tiktok'] },
-  { label: 'X/Twitter', icon: 'twitter.png', aliases: ['twitter', 'x'] },
+  { label: 'Facebook', icon: 'facebook.webp', aliases: ['facebook', 'fb'] },
+  { label: 'Zalo', icon: 'zalo.webp', aliases: ['zalo'] },
+  { label: 'YouTube', icon: 'youtube.webp', aliases: ['youtube', 'yt'] },
+  { label: 'LinkedIn', icon: 'linkedin.webp', aliases: ['linkedin'] },
+  { label: 'Instagram', icon: 'instagram.webp', aliases: ['instagram', 'ig'] },
+  { label: 'TikTok', icon: 'tiktok.webp', aliases: ['tiktok'] },
+  { label: 'X/Twitter', icon: 'twitter.webp', aliases: ['twitter', 'x'] },
   { label: 'Website', icon: 'website', aliases: ['website', 'web', 'site'] },
-  { label: 'Email', icon: 'email.png', aliases: ['email', 'mail', 'gmail'] },
+  { label: 'Email', icon: 'email.webp', aliases: ['email', 'mail', 'gmail'] },
 ];
 
 function guessIconFromLabel(label: string): string | null {
@@ -300,7 +300,7 @@ export default function AdminSiteSettingsPage() {
   };
 
   const addSocial = () => {
-    setSocialDraft((prev) => [...prev, { href: '', icon: 'facebook.png', label: '' }]);
+    setSocialDraft((prev) => [...prev, { href: '', icon: 'facebook.webp', label: '' }]);
   };
 
   const updateSocial = (idx: number, patch: Partial<SocialLink>) => {
@@ -755,7 +755,7 @@ export default function AdminSiteSettingsPage() {
                       className="md:col-span-3 px-4 py-3 border border-gray-300 rounded-lg"
                     />
                     <select
-                      value={s.icon || guessIconFromLabel(s.label || '') || 'facebook.png'}
+                      value={s.icon || guessIconFromLabel(s.label || '') || 'facebook.webp'}
                       onChange={(e) => updateSocial(idx, { icon: e.target.value })}
                       className="md:col-span-3 px-4 py-3 border border-gray-300 rounded-lg bg-white"
                     >
