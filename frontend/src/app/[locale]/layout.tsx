@@ -12,15 +12,26 @@ import IdleLogout from '@/components/IdleLogout';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'SYSMAC JSC',
-  description:
-    'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
-  keywords: 'SYSMAC JSC, Vietnam, technology, smart city, AI, biotech, drone, semiconductor',
-  icons: {
-    icon: '/images/ctgroup/logo.png',
-  },
-};
+export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+  const isEn = locale === 'en';
+  return {
+    title: 'SYSMAC JSC',
+    description: isEn 
+      ? 'SYSMAC JSC — High-tech, multi-sector corporation.'
+      : 'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
+    keywords: 'SYSMAC JSC, Vietnam, technology, smart city, AI, biotech, drone, semiconductor',
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        'vi': '/vi',
+        'en': '/en',
+      },
+    },
+    openGraph: {
+      locale: isEn ? 'en_US' : 'vi_VN',
+    }
+  };
+}
 
 export default async function LocaleLayout({
   children,
