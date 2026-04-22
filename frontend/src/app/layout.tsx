@@ -9,11 +9,12 @@ const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfa
 export const metadata: Metadata = {
   metadataBase: new URL('https://sysmac.vn'),
   title: {
-    default: 'SYSMAC JSC',
+    default: 'Giải pháp Công nghệ & Tự động hóa | SYSMAC JSC',
     template: '%s | SYSMAC JSC',
   },
-  description: 'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
-  keywords: ['SYSMAC', 'công nghệ cao', 'đa lĩnh vực', 'công ty công nghệ', 'phần mềm', 'giải pháp CNTT'],
+  description: 'SYSMAC JSC cung cấp giải pháp AI, Smart City, IoT, Robotics và công nghệ cao tại Việt Nam, hỗ trợ doanh nghiệp chuyển đổi số toàn diện.',
+  keywords: ['SYSMAC JSC', 'AI Vietnam', 'Smart City Vietnam', 'IoT solutions Vietnam',
+    'Industrial automation Vietnam', 'đa lĩnh vực', 'công ty công nghệ', 'phần mềm', 'giải pháp CNTT'],
   alternates: {
     canonical: '/',
     languages: {
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     siteName: 'SYSMAC JSC',
     images: [
       {
-        url: '/images/ctgroup/logo.png',
+        url: 'https://sysmac.vn/images/ctgroup/logo.png',
         width: 800,
         height: 600,
         alt: 'SYSMAC JSC Logo',
@@ -49,7 +50,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'SYSMAC JSC',
     description: 'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
-    images: ['/images/ctgroup/logo.png'],
+    images: ['https://sysmac.vn/images/ctgroup/logo.png'],
   },
   robots: {
     index: true,
@@ -80,6 +81,34 @@ export default function RootLayout({
     url: 'https://sysmac.vn',
     logo: 'https://sysmac.vn/images/ctgroup/logo.png',
     description: 'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',
+    sameAs: [
+      'https://www.facebook.com/sysmacjsc',
+      'https://www.linkedin.com/company/sysmac-jsc'
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+84-123-456-789',
+      contactType: 'customer service',
+      email: 'contact@sysmac.vn'
+    },
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Số 1, Đường 1',
+      addressLocality: 'Hồ Chí Minh',
+      addressCountry: 'VN'
+    }
+  };
+
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'SYSMAC JSC',
+    url: 'https://sysmac.vn',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://sysmac.vn/search?q={search_term_string}',
+      'query-input': 'required name=search_term_string'
+    }
   };
 
   return (
@@ -88,6 +117,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         {children}
       </body>

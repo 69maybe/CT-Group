@@ -18,17 +18,17 @@
     "submit": "Gửi",
     "close": "Đóng",
     "pageTitles": {
-      "home": "CT GROUP VIETNAM - Công Nghệ Cao",
-      "products": "Sản phẩm - CT GROUP",
-      "news": "Tin tức - CT GROUP",
-      "newsDetail": "Chi tiết - CT GROUP",
-      "about": "Giới thiệu - CT GROUP",
-      "contact": "Liên hệ - CT GROUP",
-      "cart": "Giỏ hàng - CT GROUP",
-      "checkout": "Thanh toán - CT GROUP",
+      "home": "SYSMAC JSC - Công Nghệ Cao",
+      "products": "Sản phẩm - SYSMAC JSC",
+      "news": "Tin tức - SYSMAC JSC",
+      "newsDetail": "Chi tiết - SYSMAC JSC",
+      "about": "Giới thiệu - SYSMAC JSC",
+      "contact": "Liên hệ - SYSMAC JSC",
+      "cart": "Giỏ hàng - SYSMAC JSC",
+      "checkout": "Thanh toán - SYSMAC JSC",
       "login": "Đăng nhập - SYSMAC JSC",
       "register": "Đăng ký - SYSMAC JSC",
-      "account": "Tài khoản - CT GROUP"
+      "account": "Tài khoản - SYSMAC JSC"
     }
   },
   "nav": {
@@ -47,7 +47,7 @@
   },
   "home": {
     "hero": {
-      "title": "CT GROUP VIETNAM",
+      "title": "SYSMAC JSC",
       "subtitle": "Đổi Mới Công Nghệ - Kiến Tạo Tương Lai",
       "cta": "Khám phá ngay",
       "secondary": "Tìm hiểu thêm"
@@ -122,8 +122,8 @@
     "address": "Địa chỉ"
   },
   "about": {
-    "title": "Giới thiệu CT GROUP",
-    "subtitle": "CT GROUP VIETNAM — đổi mới công nghệ và phát triển bền vững.",
+    "title": "Giới thiệu SYSMAC JSC",
+    "subtitle": "SYSMAC JSC — đổi mới công nghệ và phát triển bền vững.",
     "mission": "Chúng tôi đầu tư và phát triển các lĩnh vực công nghệ cao gắn với chuyển đổi số và tăng trưởng xanh của Việt Nam.",
     "whyChooseUs": "Hệ sinh thái tích hợp từ đô thị thông minh, hạ tầng, công nghệ sạch đến trung tâm đổi mới sáng tạo.",
     "customers": "Đối tác & khách hàng",
@@ -200,6 +200,6 @@
     "sustainable": "Lĩnh vực phát triển bền vững",
     "contact": "LIÊN HỆ",
     "privacy": "Chính sách bảo mật",
-    "copyright": "© Copyright by CT Group"
+    "copyright": "© Copyright by SYSMAC JSC"
   }
 }

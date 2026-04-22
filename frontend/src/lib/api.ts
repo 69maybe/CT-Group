@@ -275,7 +275,7 @@ class ApiClient {
     return Array.isArray(data) ? data.map((article: any) => this.normalizeArticleImage(article)) : [];
   }
 
-  // CT GROUP — public
+  // SYSMAC JSC — public
   async getPublicSiteSettings() {
     const sep = '?';
     const noCache = `${sep}_ts=${Date.now()}`;

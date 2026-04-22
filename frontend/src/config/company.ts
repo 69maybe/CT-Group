@@ -5,7 +5,7 @@ export type CompanySocialLink = {
 };
 
 export const COMPANY = {
-  name: 'SYSMAC SJC',
+  name: 'SYSMAC JSC',
   logoPath: '/images/ctgroup/logo.png',
   bannerPath: '',
 

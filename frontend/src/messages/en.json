@@ -18,17 +18,17 @@
     "submit": "Submit",
     "close": "Close",
     "pageTitles": {
-      "home": "CT GROUP VIETNAM - High Technology",
-      "products": "Products - CT GROUP",
-      "news": "News - CT GROUP",
-      "newsDetail": "Detail - CT GROUP",
-      "about": "About - CT GROUP",
-      "contact": "Contact - CT GROUP",
-      "cart": "Cart - CT GROUP",
-      "checkout": "Checkout - CT GROUP",
+      "home": "SYSMAC JSC - High Technology",
+      "products": "Products - SYSMAC JSC",
+      "news": "News - SYSMAC JSC",
+      "newsDetail": "Detail - SYSMAC JSC",
+      "about": "About - SYSMAC JSC",
+      "contact": "Contact - SYSMAC JSC",
+      "cart": "Cart - SYSMAC JSC",
+      "checkout": "Checkout - SYSMAC JSC",
       "login": "Login - SYSMAC JSC",
       "register": "Register - SYSMAC JSC",
-      "account": "Account - CT GROUP"
+      "account": "Account - SYSMAC JSC"
     }
   },
   "nav": {
@@ -47,7 +47,7 @@
   },
   "home": {
     "hero": {
-      "title": "CT GROUP VIETNAM",
+      "title": "SYSMAC JSC",
       "subtitle": "Technology Innovation - Building The Future",
       "cta": "Explore Now",
       "secondary": "Learn More"
@@ -122,8 +122,8 @@
     "address": "Address"
   },
   "about": {
-    "title": "About CT GROUP",
-    "subtitle": "CT GROUP VIETNAM — technology innovation and sustainable development.",
+    "title": "About SYSMAC JSC",
+    "subtitle": "SYSMAC JSC — technology innovation and sustainable development.",
     "mission": "We invest and develop high-tech sectors aligned with Vietnam’s digital transformation and green growth.",
     "whyChooseUs": "An integrated ecosystem spanning smart cities, infrastructure, clean technology, and innovation hubs.",
     "customers": "Partners & clients",
@@ -200,6 +200,6 @@
     "sustainable": "Sustainable Business Lines",
     "contact": "CONTACT",
     "privacy": "Privacy Policy",
-    "copyright": "© Copyright by CT Group"
+    "copyright": "© Copyright by SYSMAC JSC"
   }
 }

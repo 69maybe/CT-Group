@@ -27,12 +27,12 @@ function getOfflineArticle(slug: string, locale: string): any | null {
   const blocks: Record<string, { title: { vi: string; en: string }; html: { vi: string; en: string }; image: string; at: string }> = {
     'ct-smart-city-vietnam-tech-week-2026': {
       title: {
-        vi: 'CT GROUP giới thiệu giải pháp Smart City tại Vietnam Tech Week 2026',
-        en: 'CT GROUP Introduces Smart City Solutions at Vietnam Tech Week 2026',
+        vi: 'SYSMAC JSC giới thiệu giải pháp Smart City tại Vietnam Tech Week 2026',
+        en: 'SYSMAC JSC Introduces Smart City Solutions at Vietnam Tech Week 2026',
       },
       html: {
-        vi: '<p>CT GROUP đã tham gia Vietnam Tech Week 2026 với các giải pháp thành phố thông minh.</p><p>Khi backend hoạt động, nội dung đầy đủ sẽ được tải từ máy chủ.</p>',
-        en: '<p>CT GROUP participated in Vietnam Tech Week 2026 with smart city solutions.</p><p>When the backend is available, full content loads from the server.</p>',
+        vi: '<p>SYSMAC JSC đã tham gia Vietnam Tech Week 2026 với các giải pháp thành phố thông minh.</p><p>Khi backend hoạt động, nội dung đầy đủ sẽ được tải từ máy chủ.</p>',
+        en: '<p>SYSMAC JSC participated in Vietnam Tech Week 2026 with smart city solutions.</p><p>When the backend is available, full content loads from the server.</p>',
       },
       image: '/images/ctgroup/CT-Land.jpg',
       at: '2026-03-15T12:00:00',
@@ -43,8 +43,8 @@ function getOfflineArticle(slug: string, locale: string): any | null {
         en: 'Strategic Partnership with Japanese Partner in AI Field',
       },
       html: {
-        vi: '<p>CT GROUP ký kết hợp tác chiến lược trong lĩnh vực AI.</p>',
-        en: '<p>CT GROUP signed a strategic partnership in AI.</p>',
+        vi: '<p>SYSMAC JSC ký kết hợp tác chiến lược trong lĩnh vực AI.</p>',
+        en: '<p>SYSMAC JSC signed a strategic partnership in AI.</p>',
       },
       image: '/images/ctgroup/Logiin.jpg',
       at: '2026-02-28T12:00:00',
@@ -55,8 +55,8 @@ function getOfflineArticle(slug: string, locale: string): any | null {
         en: 'Launch of CT Innovation Hub 4.0 - Innovation Center',
       },
       html: {
-        vi: '<p>CT GROUP ra mắt trung tâm đổi mới sáng tạo.</p>',
-        en: '<p>CT GROUP launches the innovation center.</p>',
+        vi: '<p>SYSMAC JSC ra mắt trung tâm đổi mới sáng tạo.</p>',
+        en: '<p>SYSMAC JSC launches the innovation center.</p>',
       },
       image: '/images/ctgroup/Bon-14.jpg',
       at: '2026-01-20T12:00:00',
@@ -70,7 +70,7 @@ function getOfflineArticle(slug: string, locale: string): any | null {
     image: b.image,
     publishedAt: b.at,
     category: 'NEWS',
-    author: 'CT GROUP',
+    author: 'SYSMAC JSC',
   };
 }
 
@@ -170,7 +170,7 @@ export default function NewsDetailPage() {
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
               <div className="flex items-center gap-4 text-gray-500">
-                <span>{article.author || 'CT GROUP'}</span>
+                <span>{article.author || 'SYSMAC JSC'}</span>
                 <div className="flex gap-2 ml-auto">
                   <span className="sr-only">Share</span>
                   <Facebook className="w-5 h-5 opacity-50" />
@@ -222,6 +222,24 @@ export default function NewsDetailPage() {
                 </div>
               </div>
             </div>
+            {/* Article JSON-LD Schema */}
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  '@context': 'https://schema.org',
+                  '@type': 'NewsArticle',
+                  headline: article.title,
+                  image: [`https://sysmac.vn${img}`],
+                  datePublished: dateStr,
+                  author: [{
+                      '@type': 'Organization',
+                      name: article.author || 'SYSMAC JSC',
+                      url: 'https://sysmac.vn'
+                  }]
+                })
+              }}
+            />
           </div>
         </div>
       </article>

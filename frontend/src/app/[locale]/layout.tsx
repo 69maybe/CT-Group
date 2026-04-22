@@ -15,7 +15,6 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
   const isEn = locale === 'en';
   return {
-    title: 'SYSMAC JSC',
     description: isEn 
       ? 'SYSMAC JSC — High-tech, multi-sector corporation.'
       : 'SYSMAC JSC — công nghệ cao, đa lĩnh vực.',

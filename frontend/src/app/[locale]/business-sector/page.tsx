@@ -132,8 +132,8 @@ export default function BusinessSectorPage() {
           </h2>
           <p className="text-lg mb-8 opacity-90">
             {locale === 'vi'
-              ? 'Để biết thêm thông tin về các lĩnh vực kinh doanh của CT GROUP'
-              : 'For more information about CT GROUP business sectors'
+              ? 'Để biết thêm thông tin về các lĩnh vực kinh doanh của SYSMAC JSC'
+              : 'For more information about SYSMAC JSC business sectors'
             }
           </p>
           <Link
