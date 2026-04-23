@@ -75,39 +75,43 @@ export default function NewsPage() {
   const locale = params.locale as string;
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<string>('');
+
+  const fetchArticles = async (search?: string, category?: string) => {
+    setLoading(true);
+    try {
+      const res = await api.getArticles({ page: 1, limit: 24, locale, search, category });
+      setItems(res.items || []);
+    } catch {
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await api.getArticles({ page: 1, limit: 24, locale });
-        const list = res.items || [];
-        if (!cancelled) setItems(list);
-      } catch {
-        if (!cancelled) setItems([]);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    fetchArticles();
   }, [locale]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchArticles(searchQuery, activeCategory || undefined);
+  };
+
+  const handleCategoryClick = (category: string) => {
+    const newCategory = activeCategory === category ? '' : category;
+    setActiveCategory(newCategory);
+    fetchArticles(searchQuery, newCategory || undefined);
+  };
 
   const displayed = useMemo(() => {
     if (items.length > 0) return items;
+    if (searchQuery || activeCategory) return []; // Don't show fallback if searching
     return getFallbackArticles(locale);
-  }, [items, locale]);
+  }, [items, locale, searchQuery, activeCategory]);
 
-  const isSample = items.length === 0;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-ct-blue border-t-transparent"></div>
-      </div>
-    );
-  }
+  const isSample = items.length === 0 && !searchQuery && !activeCategory;
 
   return (
     <div>
@@ -117,11 +121,43 @@ export default function NewsPage() {
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               {locale === 'vi' ? 'TIN TỨC' : 'NEWS'}
             </h1>
-            <p className="text-xl opacity-90">
+            <p className="text-xl opacity-90 mb-8">
               {locale === 'vi'
                 ? 'Cập nhật tin tức mới nhất từ SYSMAC'
                 : 'Latest updates from SYSMAC'}
             </p>
+
+            <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex gap-2">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={locale === 'vi' ? 'Tìm kiếm bài viết...' : 'Search articles...'}
+                className="flex-1 px-6 py-3 rounded-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              <button
+                type="submit"
+                className="px-8 py-3 bg-white text-ct-blue font-semibold rounded-full hover:bg-gray-100 transition-colors"
+              >
+                {locale === 'vi' ? 'Tìm kiếm' : 'Search'}
+              </button>
+            </form>
+
+            <div className="flex flex-wrap justify-center gap-2 mt-6">
+              {['NEWS', 'BLOG', 'PROMOTION', 'RECRUITMENT'].map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryClick(cat)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    activeCategory === cat 
+                      ? 'bg-white text-ct-blue' 
+                      : 'bg-white/20 text-white hover:bg-white/30'
+                  }`}
+                >
+                  {categoryLabel(cat, locale)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -134,49 +170,61 @@ export default function NewsPage() {
         </div>
       )}
 
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 min-h-[500px]">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayed.map((item) => {
-              const img = item.image || '/images/ctgroup/logo.webp';
-              const dateStr = item.publishedAt || item.createdAt;
-              return (
-                <article
-                  key={item.id}
-                  className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow"
-                >
-                  <div className="relative h-48">
-                    <Image src={img} alt={item.title || ''} fill className="object-cover" />
-                    <div className="absolute top-4 left-4 bg-ct-blue text-white text-xs px-3 py-1 rounded-full">
-                      {categoryLabel(typeof item.category === 'string' ? item.category : undefined, locale)}
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-ct-blue border-t-transparent"></div>
+            </div>
+          ) : displayed.length === 0 ? (
+            <div className="text-center text-gray-500 py-20">
+              {locale === 'vi' 
+                ? 'Không tìm thấy bài viết nào phù hợp.' 
+                : 'No articles found matching your criteria.'}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {displayed.map((item) => {
+                const img = item.image || '/images/ctgroup/logo.webp';
+                const dateStr = item.publishedAt || item.createdAt;
+                return (
+                  <article
+                    key={item.id}
+                    className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow flex flex-col"
+                  >
+                    <div className="relative h-48 flex-shrink-0">
+                      <Image src={img} alt={item.title || ''} fill className="object-cover" />
+                      <div className="absolute top-4 left-4 bg-ct-blue text-white text-xs px-3 py-1 rounded-full shadow-sm">
+                        {categoryLabel(typeof item.category === 'string' ? item.category : undefined, locale)}
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="text-sm text-gray-500 mb-2">
-                      {dateStr
-                        ? new Date(dateStr).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })
-                        : ''}
+                    <div className="p-6 flex flex-col flex-grow">
+                      <div className="text-sm text-gray-500 mb-2">
+                        {dateStr
+                          ? new Date(dateStr).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })
+                          : ''}
+                      </div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">{item.title}</h2>
+                      <p className="text-gray-600 mb-4 line-clamp-3 flex-grow">{item.excerpt || ''}</p>
+                      <Link
+                        href={`/${locale}/news/${item.slug}`}
+                        className="inline-flex items-center gap-2 text-ct-blue font-medium hover:gap-3 transition-all mt-auto"
+                      >
+                        {locale === 'vi' ? 'Đọc thêm' : 'Read More'}
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </Link>
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">{item.title}</h2>
-                    <p className="text-gray-600 mb-4 line-clamp-3">{item.excerpt || ''}</p>
-                    <Link
-                      href={`/${locale}/news/${item.slug}`}
-                      className="inline-flex items-center gap-2 text-ct-blue font-medium hover:gap-3 transition-all"
-                    >
-                      {locale === 'vi' ? 'Đọc thêm' : 'Read More'}
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
     </div>
