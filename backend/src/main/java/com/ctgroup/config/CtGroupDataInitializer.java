@@ -36,6 +36,10 @@ public class CtGroupDataInitializer implements ApplicationRunner {
     }
 
     private void seedBusinessSectors() {
+        if (businessSectorRepository.count() > 0) {
+            log.info("Business sectors already seeded, skipping.");
+            return;
+        }
         log.info("Ensuring business_sectors data for CT GROUP VIETNAM (upsert by slug)");
         List<BusinessSector> seeds = List.of(
                 sector(1, "smart-city", "/images/ctgroup/KV_Nganh-1.png",
